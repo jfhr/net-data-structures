@@ -37,6 +37,46 @@ namespace NetDataStructures.Matrices
         }
 
         /// <summary>
+        /// Creates a new matrix based on the given matrix with the given dimensions.
+        /// </summary>
+        /// <remarks>
+        /// The dimensions can be larger, but not smaller, than those of the base matrix.
+        /// If they are larger, the surplus fields will be initialized to zero.
+        /// </remarks>
+        public Matrix(Matrix baseMatrix, int sizeX, int sizeY)
+        {
+            if (sizeX < baseMatrix.SizeX)
+            {
+                throw new ArgumentException("The new size can't be less than the base size.", nameof(sizeX));
+            }
+            if (sizeY < baseMatrix.SizeY)
+            {
+                throw new ArgumentException("The new size can't be less than the base size.", nameof(sizeY));
+            }
+
+            var newMatrix = new int[sizeX, sizeY];
+            baseMatrix.ForEachElement((x, y, value) => newMatrix[x, y] = value);
+            _matrix = newMatrix;
+        }
+
+        /// <summary>
+        /// Runs an action on each element of the matrix in order.
+        /// </summary>
+        /// <param name="action">
+        /// Action that takes three arguments: (x-index, y-index, value).
+        /// </param>
+        private void ForEachElement(Action<int, int, int> action)
+        {
+            for (int x = 0; x < SizeX; x++)
+            {
+                for (int y = 0; y < SizeY; y++)
+                {
+                    action(x, y, _matrix[x, y]);
+                }
+            }
+        }
+
+        /// <summary>
         /// Applies a transformation function on each element of the matrix
         /// and returns a new matrix with the same size, consisting of the
         /// results of the transformation function.
@@ -45,7 +85,7 @@ namespace NetDataStructures.Matrices
         /// Function that takes three arguments: (x-index, y-index, value)
         /// and returns a new value.
         /// </param>
-        private Matrix TransformEachElement(Func<int, int, int, int> transformation)
+        private Matrix CopyTransformEachElement(Func<int, int, int, int> transformation)
         {
             int[,] newNumbers = new int[SizeX, SizeY];
 
@@ -77,7 +117,7 @@ namespace NetDataStructures.Matrices
                 throw new MatrixMathException($"Attempt to add two matrices with different Y-Sizes of {m1.SizeY}, {m2.SizeY}.");
             }
 
-            return m1.TransformEachElement((x, y, value) => value + m2._matrix[x, y]);
+            return m1.CopyTransformEachElement((x, y, value) => value + m2._matrix[x, y]);
         }
 
         /// <summary>
@@ -85,7 +125,7 @@ namespace NetDataStructures.Matrices
         /// </summary>
         public static Matrix operator *(Matrix m, int scalar)
         {
-            return m.TransformEachElement((x, y, value) => value * scalar);
+            return m.CopyTransformEachElement((x, y, value) => value * scalar);
         }
 
         /// <summary>
