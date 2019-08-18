@@ -27,6 +27,32 @@ namespace NetDataStructures.Matrices.UnitTests
         }
 
         /// <summary>
+        /// I can create a new, bigger matrix from an existing one.
+        /// </summary>
+        [TestMethod]
+        public void ExpandMatrix()
+        {
+            // Arrange
+            var numbers = new int[,]
+            {
+                { 1, 2 },
+                { 3, 4 },
+            };
+
+            Matrix matrix = new Matrix(numbers);
+
+            // Act
+            Matrix expandedMatrix = new Matrix(matrix, 2, 4);
+
+            // Assert
+            Assert.That.MatrixMatches(new int[,]
+            {
+                { 1, 2, 0, 0 },
+                { 3, 4, 0, 0 },
+            }, expandedMatrix);
+        }
+
+        /// <summary>
         /// I can access any element in the matrix by two zero-based indices.
         /// </summary>
         [TestMethod]
@@ -163,7 +189,7 @@ namespace NetDataStructures.Matrices.UnitTests
             // Act
             Matrix result = matrix0 + matrix1;
         }
-        
+
         /// <summary>
         /// I can get the matrix product of two matrices.
         /// </summary>
