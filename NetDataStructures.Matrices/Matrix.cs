@@ -22,10 +22,8 @@ namespace NetDataStructures.Matrices
         /// </summary>
         public int this[int x, int y]
         {
-            get
-            {
-                return _matrix[x, y];
-            }
+            get => _matrix[x, y];
+            set => _matrix[x, y] = value;
         }
 
         /// <summary>

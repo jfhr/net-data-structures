@@ -11,7 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetDataStructures.Matrices"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetDataStructures.Matrices.UnitTests", "NetDataStructures.Matrices.UnitTests\NetDataStructures.Matrices.UnitTests.csproj", "{F763C558-6A22-4525-90DD-FA8CBA56D151}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDataStructures.ReadmeExamples", "NetDataStructures.ReadmeExamples\NetDataStructures.ReadmeExamples.csproj", "{70B21070-4E8E-4A6A-A3CA-37C878A5AAD1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetDataStructures.ReadmeExamples", "NetDataStructures.ReadmeExamples\NetDataStructures.ReadmeExamples.csproj", "{70B21070-4E8E-4A6A-A3CA-37C878A5AAD1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetDataStructures.Graphs", "NetDataStructures.Graphs\NetDataStructures.Graphs.csproj", "{7CB8B4F4-DE35-4DBE-98CB-2C6A947239BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDataStructures.Graphs.UnitTests", "NetDataStructures.Graphs.UnitTests\NetDataStructures.Graphs.UnitTests.csproj", "{ACC98186-FCD3-4DFB-A216-1D25571B31AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +43,14 @@ Global
 		{70B21070-4E8E-4A6A-A3CA-37C878A5AAD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70B21070-4E8E-4A6A-A3CA-37C878A5AAD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70B21070-4E8E-4A6A-A3CA-37C878A5AAD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CB8B4F4-DE35-4DBE-98CB-2C6A947239BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CB8B4F4-DE35-4DBE-98CB-2C6A947239BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CB8B4F4-DE35-4DBE-98CB-2C6A947239BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CB8B4F4-DE35-4DBE-98CB-2C6A947239BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACC98186-FCD3-4DFB-A216-1D25571B31AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACC98186-FCD3-4DFB-A216-1D25571B31AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACC98186-FCD3-4DFB-A216-1D25571B31AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACC98186-FCD3-4DFB-A216-1D25571B31AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

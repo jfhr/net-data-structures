@@ -80,6 +80,31 @@ namespace NetDataStructures.Matrices.UnitTests
         }
 
         /// <summary>
+        /// I can set any value in the matrix by two zero-based indices.
+        /// </summary>
+        [TestMethod]
+        public void SetMatrixValue()
+        {
+            // Arrange
+            var numbers = new int[,]
+            {
+                { 1, 2 },
+                { 3, 4 },
+            };
+            var matrix = new Matrix(numbers);
+
+            // Act
+            matrix[0, 0] = 5;
+
+            // Assert
+            Assert.That.MatrixMatches(new int[,]
+            {
+                { 5, 2 },
+                { 3, 4 },
+            }, matrix);
+        }
+
+        /// <summary>
         /// I can get the scalar product of a matrix.
         /// </summary>
         [TestMethod]

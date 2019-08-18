@@ -4,8 +4,8 @@ namespace NetDataStructures.Graph
 {
     public interface IWeightedDirectedGraph<T> : ICollection<T>
     {
-        void GetVerticeWeight(int from, int to);
-        void AddVertice(int from, int to, int weight);
-        void RemoveVertice(int from, int to, int weight);
+        int GetVerticeWeight(T from, T to);
+        void AddVertice(T from, T to, int weight);
+        void RemoveVertice(T from, T to);
     }
 }
