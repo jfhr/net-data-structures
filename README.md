@@ -42,5 +42,5 @@ Matrix odd = new Matrix(new int[,] {
 
 Matrix product = even * odd;
 
-Assert.AreEqual(16, product[1, 1]);
+Console.WriteLine(product[1, 1]);  // 16
 ```
