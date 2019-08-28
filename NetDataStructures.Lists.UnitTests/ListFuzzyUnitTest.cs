@@ -15,17 +15,6 @@ namespace NetDataStructures.Lists.UnitTests
     [TestClass]
     public class ListFuzzyUnitTest : ListUnitTest
     {
-        private static IEnumerable<object[]> TypesUnderTest()
-        {
-            IList<object> arrayList = new ArrayList<object>();
-            Fuzz(arrayList, 25, 50);
-            yield return new object[] { arrayList };
-
-            IList<object> linkedList = new LinkedList<object>();
-            Fuzz(linkedList, 25, 50);
-            yield return new object[] { linkedList };
-        }
-
         #region Fuzzy Testing
 
         private static readonly object referenceObject = new object();

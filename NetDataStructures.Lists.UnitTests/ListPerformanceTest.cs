@@ -17,7 +17,7 @@ namespace NetDataStructures.Lists.UnitTests
         {
             yield return new object[] { new List<object>() };
             yield return new object[] { new ArrayList<object>() };
-            yield return new object[] { new LinkedList<object>() };
+            yield return new object[] { new RecursiveSinglyLinkedList<object>() };
         }
 
         private readonly Stopwatch stopwatch = new Stopwatch();

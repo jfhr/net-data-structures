@@ -10,7 +10,7 @@ All the examples shown here are verified with unit tests, see the `NetDataStruct
 Generic, singly-linked list type.
 
 ```CSharp
-IList<string> list = new Lists.LinkedList<string>();
+IList<string> list = new RecursiveSinglyLinkedList<string>();
 list.Add("foo");
 Console.WriteLine(list.IndexOf("foo"));  // 0
 ```
