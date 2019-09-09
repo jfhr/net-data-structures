@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace NetDataStructures.Lists.UnitTests
+namespace NetDataStructures.UnitTests.Lists
 {
     /*
      * We use fuzz testing for all list types.

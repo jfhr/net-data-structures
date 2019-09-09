@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace NetDataStructures.Lists.UnitTests
+using NetDataStructures.Lists;
+
+namespace NetDataStructures.UnitTests.Lists
 {
     // Performance tests don't make sense in Debug mode since it lacks compiler optimizations
 #if !DEBUG  

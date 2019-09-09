@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace NetDataStructures.Matrices.UnitTests
+using NetDataStructures.Matrices;
+
+namespace NetDataStructures.UnitTests.Matrices
 {
     static class MatrixAssertions
     {

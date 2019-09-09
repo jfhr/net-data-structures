@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace NetDataStructures.Lists.UnitTests
+using NetDataStructures.Lists;
+
+namespace NetDataStructures.UnitTests.Lists
 {
     [TestClass]
     public class ListUnitTest
