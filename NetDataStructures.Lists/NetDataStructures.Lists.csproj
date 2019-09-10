@@ -1,9 +1,0 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>NetDataStructures.Lists</AssemblyName>
-    <RootNamespace>NetDataStructures.Lists</RootNamespace>
-  </PropertyGroup>
-
-</Project>

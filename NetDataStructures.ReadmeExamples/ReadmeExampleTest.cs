@@ -12,7 +12,7 @@ namespace NetDataStructures.ReadmeExamples
         [TestMethod]
         public void LinkedListExample()
         {
-            IList<string> list = new Lists.LinkedList<string>
+            IList<string> list = new RecursiveSinglyLinkedList<string>
             {
                 "foo"
             };

@@ -2,12 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>NetDataStructures.Matrices</RootNamespace>
-    <AssemblyName>NetDataStructures.Matrices</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Internal\" />
+    <Folder Include="Matrices\Internal\" />
   </ItemGroup>
 
 </Project>

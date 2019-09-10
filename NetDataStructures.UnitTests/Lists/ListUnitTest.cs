@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace NetDataStructures.Lists.UnitTests
+using NetDataStructures.Lists;
+
+namespace NetDataStructures.UnitTests.Lists
 {
     [TestClass]
     public class ListUnitTest
@@ -12,7 +14,7 @@ namespace NetDataStructures.Lists.UnitTests
             // if a test fails here, it means the test itself is erroneous
             yield return new object[] { new List<object>() };
             yield return new object[] { new ArrayList<object>() };
-            yield return new object[] { new LinkedList<object>() };
+            yield return new object[] { new RecursiveSinglyLinkedList<object>() };
         }
 
         /// <summary>

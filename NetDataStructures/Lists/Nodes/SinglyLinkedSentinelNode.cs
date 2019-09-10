@@ -2,7 +2,7 @@
 
 namespace NetDataStructures.Lists.Nodes
 {
-    internal class SentinelNode<T> : INode<T>
+    internal class SentinelNode<T> : ISinglyLinkedNode<T>
     {
         public T Value { get => throw new IndexOutOfRangeException(); set => throw new IndexOutOfRangeException(); }
         
@@ -21,7 +21,7 @@ namespace NetDataStructures.Lists.Nodes
             throw new IndexOutOfRangeException($"No element exists at the specified index.");
         }
 
-        public INode<T> Add(InnerNode<T> innerNode)
+        public ISinglyLinkedNode<T> Add(InnerNode<T> innerNode)
         {
             innerNode.Next = this;
             return innerNode;
@@ -47,12 +47,12 @@ namespace NetDataStructures.Lists.Nodes
             return -1;
         }
 
-        public INode<T> Remove(T item)
+        public ISinglyLinkedNode<T> Remove(T item)
         {
             return this;
         }
 
-        public INode<T> RemoveAt(int index)
+        public ISinglyLinkedNode<T> RemoveAt(int index)
         {
             throw new IndexOutOfRangeException($"Can't remove element at the specified index.");
         }

@@ -5,11 +5,11 @@ using NetDataStructures.Lists.Nodes;
 
 namespace NetDataStructures.Lists
 {
-    public class LinkedList<T> : IList<T>
+    public class RecursiveSinglyLinkedList<T> : IList<T>
     {
-        internal INode<T> Root { get; set; }
+        internal ISinglyLinkedNode<T> Root { get; set; }
 
-        public LinkedList()
+        public RecursiveSinglyLinkedList()
         {
             Root = new SentinelNode<T>();
         }
@@ -42,7 +42,7 @@ namespace NetDataStructures.Lists
 
         public IEnumerator<T> GetEnumerator()
         {
-            INode<T> currentNode = Root;
+            ISinglyLinkedNode<T> currentNode = Root;
             InnerNode<T> currentInner;
             while (currentNode is InnerNode<T>)
             {
@@ -87,7 +87,7 @@ namespace NetDataStructures.Lists
         /// <returns>
         /// A <see langword="bool"/> indicating if the operation was successful.
         /// </returns>
-        private bool HandleInternalChange(INode<T> newRoot)
+        private bool HandleInternalChange(ISinglyLinkedNode<T> newRoot)
         {
             if (newRoot == null)
             {

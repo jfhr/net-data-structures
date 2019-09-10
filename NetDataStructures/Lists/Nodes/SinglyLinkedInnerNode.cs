@@ -1,8 +1,8 @@
 ﻿namespace NetDataStructures.Lists.Nodes
 {
-    internal class InnerNode<T> : INode<T>
+    internal class InnerNode<T> : ISinglyLinkedNode<T>
     {
-        internal INode<T> Next { get; set; }
+        internal ISinglyLinkedNode<T> Next { get; set; }
 
         public T Value { get; set; }
 
@@ -41,7 +41,7 @@
             }
         }
 
-        public INode<T> Add(InnerNode<T> innerNode)
+        public ISinglyLinkedNode<T> Add(InnerNode<T> innerNode)
         {
             Next = Next.Add(innerNode);
             return this;
@@ -91,7 +91,7 @@
             }
         }
 
-        public INode<T> Remove(T item)
+        public ISinglyLinkedNode<T> Remove(T item)
         {
             if (Value.Equals(item))
             {
@@ -105,7 +105,7 @@
             }
         }
 
-        public INode<T> RemoveAt(int index)
+        public ISinglyLinkedNode<T> RemoveAt(int index)
         {
             if (index == 0)
             {

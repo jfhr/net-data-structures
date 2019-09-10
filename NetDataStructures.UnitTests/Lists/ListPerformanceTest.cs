@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace NetDataStructures.Lists.UnitTests
+using NetDataStructures.Lists;
+
+namespace NetDataStructures.UnitTests.Lists
 {
     // Performance tests don't make sense in Debug mode since it lacks compiler optimizations
 #if !DEBUG  
@@ -17,7 +19,7 @@ namespace NetDataStructures.Lists.UnitTests
         {
             yield return new object[] { new List<object>() };
             yield return new object[] { new ArrayList<object>() };
-            yield return new object[] { new LinkedList<object>() };
+            yield return new object[] { new RecursiveSinglyLinkedList<object>() };
         }
 
         private readonly Stopwatch stopwatch = new Stopwatch();

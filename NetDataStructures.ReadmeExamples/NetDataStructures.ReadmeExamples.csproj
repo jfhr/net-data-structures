@@ -13,8 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetDataStructures.Lists\NetDataStructures.Lists.csproj" />
-    <ProjectReference Include="..\NetDataStructures.Matrices\NetDataStructures.Matrices.csproj" />
+    <ProjectReference Include="..\NetDataStructures\NetDataStructures.csproj" />
   </ItemGroup>
 
 </Project>
