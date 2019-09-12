@@ -5,9 +5,9 @@ They are designed to be usable from any .NET language.
 
 All the examples shown here are verified with unit tests, see the `NetDataStructures.ReadmeExamples` folder.
 
-## LinkedList&lt;T&gt;
+## RecursiveSinglyLinkedList&lt;T&gt;
 
-Generic, singly-linked list type.
+Recursive, generic, singly-linked list type.
 
 ```CSharp
 IList<string> list = new RecursiveSinglyLinkedList<string>();
