@@ -17,16 +17,16 @@ namespace NetDataStructures.Matrices
         public int SizeY => _matrix.GetLength(1);
 
         /// <summary>
-        /// Gets the element of this matrix at index the zero-based indices
+        /// Gets or sets the element of this matrix at the zero-based indices
         /// <paramref name="x"/> and <paramref name="y"/>.
         /// </summary>
         public int this[int x, int y]
         {
-            get
-            {
-                return _matrix[x, y];
-            }
+            get => _matrix[x, y];
+            set => _matrix[x, y] = value;
         }
+
+
 
         /// <summary>
         /// Creates a new matrix based on a 2d-array of 32-bit integers.
@@ -59,6 +59,8 @@ namespace NetDataStructures.Matrices
             _matrix = newMatrix;
         }
 
+
+
         /// <summary>
         /// Runs an action on each element of the matrix in order.
         /// </summary>
@@ -85,55 +87,161 @@ namespace NetDataStructures.Matrices
         /// Function that takes three arguments: (x-index, y-index, value)
         /// and returns a new value.
         /// </param>
-        private Matrix CopyTransformEachElement(Func<int, int, int, int> transformation)
+        private void TransformEachElement(Func<int, int, int, int> transformation, int[,] targetArray)
         {
-            int[,] newNumbers = new int[SizeX, SizeY];
-
             for (int x = 0; x < SizeX; x++)
             {
                 for (int y = 0; y < SizeY; y++)
                 {
-                    newNumbers[x, y] = transformation(x, y, _matrix[x, y]);
+                    targetArray[x, y] = transformation(x, y, _matrix[x, y]);
                 }
             }
+        }
 
-            return new Matrix(newNumbers);
+
+
+        /// <summary>
+        /// Validates that the given matrix can be added to this matrix.
+        /// </summary>
+        /// <exception cref="MatrixMathException">
+        /// The two matrices do not have the same dimensions.
+        /// </exception>
+        private void ValidateAdd(Matrix matrix)
+        {
+            if (SizeX != matrix.SizeX)
+            {
+                throw new MatrixMathException($"Attempt to add two matrices with different X-Sizes of {SizeX}, {matrix.SizeX}.");
+            }
+            if (SizeY != matrix.SizeY)
+            {
+                throw new MatrixMathException($"Attempt to add two matrices with different Y-Sizes of {SizeY}, {matrix.SizeY}.");
+            }
         }
 
         /// <summary>
-        /// Adds two matrices of the same dimensions and returns the result as a new matrix.
+        /// Adds another matrix to the current matrix and returns
+        /// a new matrix containing the resulting values.
+        /// </summary>
+        /// <param name="matrix">
+        /// The matrix to add to the current matrix.
+        /// </param>
+        /// <exception cref="MatrixMathException">
+        /// The two matrices have different dimensions.
+        /// </exception>
+        public Matrix Add(Matrix matrix)
+        {
+            ValidateAdd(matrix);
+            int[,] newArray = new int[SizeX, SizeY];
+            TransformEachElement((x, y, value) => value + matrix[x, y], newArray);
+            return new Matrix(newArray);
+        }
+
+        /// <summary>
+        /// Adds another matrix to the current matrix and writes the resulting 
+        /// values in this matrix. This does not create a new matrix.
+        /// </summary>
+        /// <param name="matrix">
+        /// The matrix to add to the current matrix.
+        /// </param>
+        /// <exception cref="MatrixMathException">
+        /// The two matrices have different dimensions.
+        /// </exception>
+        public void AddInPlace(Matrix matrix)
+        {
+            ValidateAdd(matrix);
+            TransformEachElement((x, y, value) => value + matrix[x, y], _matrix);
+        }
+
+        /// <summary>
+        /// Adds two matrices of the same dimensions and returns the result as
+        /// a new matrix.
         /// </summary>
         /// <exception cref="MatrixMathException">
         /// The two matrices are not of the same dimension.
         /// </exception>
-        public static Matrix operator +(Matrix m1, Matrix m2)
-        {
-            if (m1.SizeX != m2.SizeX)
-            {
-                throw new MatrixMathException($"Attempt to add two matrices with different X-Sizes of {m1.SizeX}, {m2.SizeX}.");
-            }
-            if (m1.SizeY != m2.SizeY)
-            {
-                throw new MatrixMathException($"Attempt to add two matrices with different Y-Sizes of {m1.SizeY}, {m2.SizeY}.");
-            }
+        public static Matrix operator +(Matrix m1, Matrix m2) => m1.Add(m2);
 
-            return m1.CopyTransformEachElement((x, y, value) => value + m2._matrix[x, y]);
+
+
+        /// <summary>
+        /// Calculates the product of this matrix and a scalar and returns the
+        /// result as a new matrix.
+        /// </summary>
+        public Matrix Multiply(int scalar)
+        {
+            int[,] newArray = new int[SizeX, SizeY];
+            TransformEachElement((x, y, value) => value * scalar, newArray);
+            return new Matrix(newArray);
         }
 
         /// <summary>
-        /// Calculates the product of a matrix and a scalar and returns the result as a new matrix.
+        /// Calculates the product of this matrix and a scalar and writes the 
+        /// result into the current matrix. This will not create a new matrix.
         /// </summary>
-        public static Matrix operator *(Matrix m, int scalar)
+        public void MultiplyInPlace(int scalar)
         {
-            return m.CopyTransformEachElement((x, y, value) => value * scalar);
+            TransformEachElement((x, y, value) => value * scalar, _matrix);
         }
 
         /// <summary>
-        /// Calculates the product of a matrix and a scalar and returns the result as a new matrix.
+        /// Calculates the product of a matrix and a scalar and returns the 
+        /// result as a new matrix.
         /// </summary>
-        public static Matrix operator *(int scalar, Matrix m)
+        /// <remarks>
+        /// This is equivalent to calling <see cref="Matrix.Multiply(int)"/>.
+        /// </remarks>
+        public static Matrix operator *(Matrix m, int scalar) => m.Multiply(scalar);
+
+        /// <summary>
+        /// Calculates the product of a matrix and a scalar and returns the 
+        /// result as a new matrix.
+        /// </summary>
+        /// <remarks>
+        /// This is equivalent to calling <see cref="Matrix.Multiply(int)"/>.
+        /// </remarks>
+        public static Matrix operator *(int scalar, Matrix m) => m.Multiply(scalar);
+
+
+
+        /// <summary>
+        /// Validates that the given matrix can be multiplied with this matrix.
+        /// </summary>
+        /// <exception cref="MatrixMathException">
+        /// The multiplication can't be performed because the y-size of this matrix 
+        /// is different from the x-size of the target matrix.
+        /// </exception>
+        private void ValidateMultiply(Matrix matrix)
         {
-            return m * scalar;
+            if (SizeX != matrix.SizeY)
+            {
+                throw new MatrixMathException($"Attempt to multiply matrix with Y-Size of {SizeY} with another matrix with X-Size {matrix.SizeX}.");
+            }
+        }
+
+        /// <summary>
+        /// Calculates the matrix product of this matrix and the given matrix 
+        /// and return a new matrix containing the resulting values.
+        /// This operation is not commutative.
+        /// </summary>
+        /// <exception cref="MatrixMathException">
+        /// The Y-Dimension of this matrix is not equal to the X-Dimension of
+        /// the given matrix.
+        /// </exception>
+        public Matrix Multiply(Matrix matrix)
+        {
+            ValidateMultiply(matrix);
+            int[,] newArray = new int[SizeX, SizeY];
+            for (int x = 0; x < SizeX; x++)
+            {
+                for (int y = 0; y < matrix.SizeY; y++)
+                {
+                    for (int n = 0; n < SizeY; n++)
+                    {
+                        newArray[x, y] += this[x, n] * matrix[n, y];
+                    }
+                }
+            }
+            return new Matrix(newArray);
         }
 
         /// <summary>
@@ -143,28 +251,16 @@ namespace NetDataStructures.Matrices
         /// <exception cref="MatrixMathException">
         /// The Y-Dimension of <paramref name="m1"/> is not equal to the X-Dimension of <paramref name="m2"/>.
         /// </exception>
-        public static Matrix operator *(Matrix m1, Matrix m2)
-        {
-            if (m1.SizeX != m2.SizeY)
-            {
-                throw new MatrixMathException($"Attempt to multiply matrix with Y-Size of {m1.SizeY} with another matrix with X-Size {m1.SizeX}.");
-            }
+        public static Matrix operator *(Matrix m1, Matrix m2) => m1.Multiply(m2);
 
-            int[,] newNumbers = new int[m1.SizeX, m2.SizeY];
 
-            for (int x = 0; x < m1.SizeX; x++)
-            {
-                for (int y = 0; y < m2.SizeY; y++)
-                {
-                    for (int n = 0; n < m1.SizeY; n++)
-                    {
-                        newNumbers[x, y] += m1[x, n] * m2[n, y];
-                    }
-                }
-            }
 
-            return new Matrix(newNumbers);
-        }
+        /// <summary>
+        /// Returns a new matrix that is the result of multiplying this matrix with -1.
+        /// </summary>
+        public static Matrix operator -(Matrix matrix) => matrix * -1;
+
+
 
         /// <summary>
         /// Creates a <see cref="string"/>-representation of this matrix.

@@ -35,13 +35,11 @@ namespace NetDataStructures.UnitTests.Matrices
         public void ExpandMatrix()
         {
             // Arrange
-            var numbers = new int[,]
+            Matrix matrix = new Matrix(new int[,]
             {
                 { 1, 2 },
                 { 3, 4 },
-            };
-
-            Matrix matrix = new Matrix(numbers);
+            });
 
             // Act
             Matrix expandedMatrix = new Matrix(matrix, 2, 4);
@@ -88,12 +86,11 @@ namespace NetDataStructures.UnitTests.Matrices
         public void Scalarproduct()
         {
             // Arrange
-            var numbers = new int[,]
+            var matrix = new Matrix(new int[,]
             {
                 { 1, 2 },
                 { 3, 4 },
-            };
-            var matrix = new Matrix(numbers);
+            });
             var scalar = 4;
 
             // Act
@@ -108,18 +105,66 @@ namespace NetDataStructures.UnitTests.Matrices
         }
 
         /// <summary>
+        /// I can get the scalar product of a matrix.
+        /// </summary>
+        [TestMethod]
+        public void Negate()
+        {
+            // Arrange
+            var matrix = new Matrix(new int[,]
+            {
+                { 1, 2 },
+                { 3, 4 },
+            });
+
+            // Act
+            Matrix result = -matrix;
+
+            // Assert
+            Assert.That.MatrixMatches(new int[,]
+            {
+                { -1, -2 },
+                { -3, -4 },
+            }, result);
+        }
+
+        /// <summary>
+        /// I can get the scalar product of a matrix in-place.
+        /// </summary>
+        [TestMethod]
+        public void ScalarproductInPlace()
+        {
+            // Arrange
+            var matrix = new Matrix(new int[,]
+            {
+                { 1, 2 },
+                { 3, 4 },
+            });
+            var scalar = 4;
+
+            // Act
+            matrix.MultiplyInPlace(scalar);
+
+            // Assert
+            Assert.That.MatrixMatches(new int[,]
+            {
+                { 4, 8, },
+                { 12, 16, },
+            }, matrix);
+        }
+
+        /// <summary>
         /// I can get a zero matrix by multiplying an existing matrix with 0.
         /// </summary>
         [TestMethod]
         public void ScalarproductBy0()
         {
             // Arrange
-            var numbers = new int[,]
+            var matrix = new Matrix(new int[,]
             {
                 { 1, 2 },
                 { 3, 4 },
-            };
-            var matrix = new Matrix(numbers);
+            });
             var scalar = 0;
 
             // Act
@@ -140,19 +185,17 @@ namespace NetDataStructures.UnitTests.Matrices
         public void AddMatrices()
         {
             // Arrange
-            var numbers0 = new int[,]
+            var matrix0 = new Matrix(new int[,]
             {
                 { 1, 2 },
                 { 3, 4 },
-            };
-            var matrix0 = new Matrix(numbers0);
+            });
 
-            var numbers1 = new int[,]
+            var matrix1 = new Matrix(new int[,]
             {
                 { 5, 3 },
                 { 1, -1 },
-            };
-            var matrix1 = new Matrix(numbers1);
+            });
 
             // Act
             Matrix result = matrix0 + matrix1;
@@ -166,6 +209,36 @@ namespace NetDataStructures.UnitTests.Matrices
         }
 
         /// <summary>
+        /// I can add two matrices together in-place.
+        /// </summary>
+        [TestMethod]
+        public void AddMatricesInPlace()
+        {
+            // Arrange
+            var matrix0 = new Matrix(new int[,]
+            {
+                { 1, 2 },
+                { 3, 4 },
+            });
+
+            var matrix1 = new Matrix(new int[,]
+            {
+                { 5, 3 },
+                { 1, -1 },
+            });
+
+            // Act
+            matrix0.AddInPlace(matrix1);
+
+            // Assert
+            Assert.That.MatrixMatches(new int[,]
+            {
+                { 6, 5, },
+                { 4, 3, },
+            }, matrix0);
+        }
+
+        /// <summary>
         /// When I try to add two matrices of different lengths,
         /// I get a <see cref="MatrixMathException"/>.
         /// </summary>
@@ -173,20 +246,18 @@ namespace NetDataStructures.UnitTests.Matrices
         public void AddMatrices_DifferentLengths_Exception()
         {
             // Arrange
-            var numbers0 = new int[,]
+            var matrix0 = new Matrix(new int[,]
             {
                 { 1, 2 },
                 { 3, 4 },
                 { 5, 6 },
-            };
-            var matrix0 = new Matrix(numbers0);
+            });
 
-            var numbers1 = new int[,]
+            var matrix1 = new Matrix(new int[,]
             {
                 { 5, 3 },
                 { 1, -1 },
-            };
-            var matrix1 = new Matrix(numbers1);
+            });
 
             // Act
             Matrix result = matrix0 + matrix1;
@@ -205,19 +276,17 @@ namespace NetDataStructures.UnitTests.Matrices
         public void MultiplyMatrices()
         {
             // Arrange
-            var numbers0 = new int[,]
+            var matrix0 = new Matrix(new int[,]
             {
                 { 1, 2 },
                 { 3, 4 },
-            };
-            var matrix0 = new Matrix(numbers0);
+            });
 
-            var numbers1 = new int[,]
+            var matrix1 = new Matrix(new int[,]
             {
                 { 5, 3 },
                 { 1, -1 },
-            };
-            var matrix1 = new Matrix(numbers1);
+            });
 
             // Act
             Matrix result = matrix0 * matrix1;
@@ -238,19 +307,17 @@ namespace NetDataStructures.UnitTests.Matrices
         public void MultiplyMatrices_IncompatibleDimensions_Exception()
         {
             // Arrange
-            var numbers0 = new int[,]
+            var matrix0 = new Matrix(new int[,]
             {
                 { 1, 2 },
                 { 3, 4 },
-            };
-            var matrix0 = new Matrix(numbers0);
+            });
 
-            var numbers1 = new int[,]
+            var matrix1 = new Matrix(new int[,]
             {
                 { 5, 3, 1 },
                 { 1, -1, -3 },
-            };
-            var matrix1 = new Matrix(numbers1);
+            });
 
             // Act
             Matrix result = matrix0 * matrix1;
