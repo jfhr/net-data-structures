@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetDataStructures.PrimeNumbers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -11,12 +10,32 @@ namespace NetDataStructures.UnitTests.PrimeNumbers
     public class PrimeNumberGeneratorUnitTest
     {
         /// <summary>
-        /// Test cases for prime number generators.
+        /// Test cases for the <see cref="IPrimeNumberGenerator.IsPrime(BigInteger)"/> method.
         /// </summary>
-        private static readonly TestCase[] testCases = new TestCase[]
+        private static readonly (BigInteger, bool)[] isPrimeTestCases
+            = new (BigInteger, bool)[]
+            {
+                (-1, false),
+                (0, false),
+                (1, false),
+                (2, true),
+                (3, true),
+                (4, false),
+                (5, true),
+            };
+
+        /// <summary>
+        /// Test cases for the <see cref="IPrimeNumberGenerator.GetPrimes(BigInteger, BigInteger)"/> method.
+        /// </summary>
+        private static readonly (BigInteger, BigInteger, BigInteger[])[] getPrimesTestCases 
+            = new (BigInteger, BigInteger, BigInteger[])[]
         {
-            new TestCase(1, 2, new BigInteger[] { 2 }, TestCaseType.Int32),
-            new TestCase(1, 3, new BigInteger[] { 2, 3 }, TestCaseType.Int32),
+            (1, 2, new BigInteger[] { }),
+            (1, 3, new BigInteger[] { 2 }),
+            (1, 4, new BigInteger[] { 2, 3 }),
+            (1, 5, new BigInteger[] { 2, 3 }),
+            (1, 6, new BigInteger[] { 2, 3, 5 }),
+            (5, 6, new BigInteger[] { 5 }),
         };
 
         /// <summary>
@@ -27,67 +46,34 @@ namespace NetDataStructures.UnitTests.PrimeNumbers
             new NaivePrimeNumberGenerator(),
         };
 
-        #region Parameter generators
-        private static IEnumerable<object[]> Int32Cases => testCases
-            .Where(x => x.Type <= TestCaseType.Int32)
-            .SelectMany(test => targets
-                .Select(target => new object[] { target, test.StartAt, test.StopAt, test.Expected })
-            );
-
-        private static IEnumerable<object[]> Int64Cases => testCases
-            .Where(x => x.Type <= TestCaseType.Int64)
-            .SelectMany(test => targets
-                .Select(target => new object[] { target, test.StartAt, test.StopAt, test.Expected })
-            );
-
-        private static IEnumerable<object[]> BigIntCases => testCases
-            .SelectMany(test => targets
-                .Select(target => new object[] { target, test.StartAt, test.StopAt, test.Expected })
-            );
-        #endregion
-
         #region Test methods
-        [TestMethod, DynamicData(nameof(Int32Cases))]
-        public void TestPrimeNumberGenerator(IPrimeNumberGenerator target, int startAt, int stopAt, int[] expected)
+        private static IEnumerable<object[]> GetPrimesTestCasesWithTargetTypes => getPrimesTestCases
+            .SelectMany(test => targets
+                .Select(target => new object[] { target, test.Item1, test.Item2, test.Item3 })
+            );
+
+        [TestMethod, DynamicData(nameof(GetPrimesTestCasesWithTargetTypes))]
+        public void TestGetPrimes(IPrimeNumberGenerator target, BigInteger startAt, BigInteger stopAt, BigInteger[] expected)
         {
-            int[] actual = target.GetPrimes(startAt, stopAt).ToArray();
-            CollectionAssert.AreEqual(expected, actual, "Did not generate the expected primes in the expected order.");
+            BigInteger[] actual = target.GetPrimes(startAt, stopAt).ToArray();
+            CollectionAssert.AreEqual(expected, actual,
+                $"Expected: [{string.Join(',', expected)}], but got: [{string.Join(',', actual)}]. "
+            );
+        }
+        
+
+        private static IEnumerable<object[]> IsPrimeTestCasesWithTargetTypes => isPrimeTestCases
+            .SelectMany(test => targets
+                .Select(target => new object[] { target, test.Item1, test.Item2 })
+            );
+
+        [TestMethod, DynamicData(nameof(IsPrimeTestCasesWithTargetTypes))]
+        public void TestIsPrime(IPrimeNumberGenerator target, BigInteger number, bool expected)
+        {
+            bool actual = target.IsPrime(number);
+            Assert.AreEqual(expected, actual, $"IsPrime({number}): ");
         }
 
-        [TestMethod, DynamicData(nameof(Int64Cases))]
-        public void TestLongPrimeNumberGenerator(IPrimeNumberGenerator target, long startAt, long stopAt, long[] expected)
-        {
-            long[] actual = target.GetLongPrimes(startAt, stopAt).ToArray();
-            CollectionAssert.AreEqual(expected, actual, "Did not generate the expected primes in the expected order.");
-        }
-
-        [TestMethod, DynamicData(nameof(BigIntCases))]
-        public void TestBigPrimeNumberGenerator(IPrimeNumberGenerator target, BigInteger startAt, BigInteger stopAt, BigInteger[] expected)
-        {
-            BigInteger[] actual = target.GetBigPrimes(startAt, stopAt).ToArray();
-            CollectionAssert.AreEqual(expected, actual, "Did not generate the expected primes in the expected order.");
-        }
         #endregion
-    }
-
-    public class TestCase
-    {
-        public BigInteger StartAt { get; }
-        public BigInteger StopAt { get; }
-        public BigInteger[] Expected { get; }
-        public TestCaseType Type { get; }
-
-        public TestCase(BigInteger startAt, BigInteger stopAt, BigInteger[] expected, TestCaseType type = TestCaseType.BigInt)
-        {
-            StartAt = startAt;
-            StopAt = stopAt;
-            Expected = expected ?? throw new ArgumentNullException(nameof(expected));
-            Type = type;
-        }
-    }
-
-    public enum TestCaseType
-    {
-        Int32, Int64, BigInt,
     }
 }
