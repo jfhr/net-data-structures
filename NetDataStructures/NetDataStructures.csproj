@@ -5,7 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Matrices\Internal\" />
+    <Compile Remove="Matrices\Internal\**" />
+    <EmbeddedResource Remove="Matrices\Internal\**" />
+    <None Remove="Matrices\Internal\**" />
   </ItemGroup>
 
 </Project>

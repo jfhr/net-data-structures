@@ -3,7 +3,7 @@ using System.Text;
 
 namespace NetDataStructures.Matrices
 {
-    public struct Matrix : IMatrix
+    public struct Matrix
     {
         private int[,] _matrix;
 
