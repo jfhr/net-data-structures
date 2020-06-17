@@ -3,3 +3,6 @@ bin/
 obj/
 TestResults/
 packages/
+.idea/
+*.DotSettings
+*.user
