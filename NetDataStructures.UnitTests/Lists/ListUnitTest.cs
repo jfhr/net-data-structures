@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using NetDataStructures.Lists;
@@ -18,16 +19,6 @@ namespace NetDataStructures.UnitTests.Lists
         }
 
         /// <summary>
-        /// I can get an <see cref="IEnumerator{T}"/> from a list.
-        /// </summary>
-        [TestMethod, DynamicData(nameof(TypesUnderTest), DynamicDataSourceType.Method)]
-        public void GetEnumerator_Expect_Ok(IList<object> target)
-        {
-            // Act
-            var enumerator = target.GetEnumerator();
-        }
-
-        /// <summary>
         /// Lists are not read-only by default.
         /// </summary>
         [TestMethod, DynamicData(nameof(TypesUnderTest), DynamicDataSourceType.Method)]
@@ -41,7 +32,7 @@ namespace NetDataStructures.UnitTests.Lists
         /// There are no elements in a newly created list.
         /// </summary>
         [TestMethod, DynamicData(nameof(TypesUnderTest), DynamicDataSourceType.Method)]
-        public void Count_Initial_Expect_0(IList<object> target)
+        public void InitialCount(IList<object> target)
         {
             // Assert
             Assert.AreEqual(0, target.Count);
@@ -51,7 +42,7 @@ namespace NetDataStructures.UnitTests.Lists
         /// The Add() method adds an item to the list.
         /// </summary>
         [TestMethod, DynamicData(nameof(TypesUnderTest), DynamicDataSourceType.Method)]
-        public void Add_Expect_AddElement(IList<object> target)
+        public void Add(IList<object> target)
         {
             // Arrange
             object element = "element";
@@ -68,7 +59,7 @@ namespace NetDataStructures.UnitTests.Lists
         /// The Insert() method inserts an item into the list at the correct index.
         /// </summary>
         [TestMethod, DynamicData(nameof(TypesUnderTest), DynamicDataSourceType.Method)]
-        public void Insert_Expect_InsertElementAtCorrectIndex(IList<object> target)
+        public void Insert(IList<object> target)
         {
             // Arrange
             object elementBefore = "before";
@@ -89,7 +80,7 @@ namespace NetDataStructures.UnitTests.Lists
         /// The Remove() method removes an item from the list.
         /// </summary>
         [TestMethod, DynamicData(nameof(TypesUnderTest), DynamicDataSourceType.Method)]
-        public void Remove_Expect_RemoveElement(IList<object> target)
+        public void Remove(IList<object> target)
         {
             // Arrange
             object element = "element";
@@ -107,7 +98,7 @@ namespace NetDataStructures.UnitTests.Lists
         /// The RemoveAt() method removes the item with a given index from the list.
         /// </summary>
         [TestMethod, DynamicData(nameof(TypesUnderTest), DynamicDataSourceType.Method)]
-        public void RemoveAt_Expect_RemoveElement(IList<object> target)
+        public void RemoveAt(IList<object> target)
         {
             // Arrange
             object element = "element";
@@ -125,7 +116,7 @@ namespace NetDataStructures.UnitTests.Lists
         /// The IndexOf() method correctly returns the index of an item in the list.
         /// </summary>
         [TestMethod, DynamicData(nameof(TypesUnderTest), DynamicDataSourceType.Method)]
-        public void IndexOf_Expect_ReturnIndexOfElement(IList<object> target)
+        public void IndexOf(IList<object> target)
         {
             // Arrange
             object element = "element";
@@ -136,6 +127,86 @@ namespace NetDataStructures.UnitTests.Lists
 
             // Assert
             Assert.AreEqual(0, output);
+        }
+
+        /// <summary>
+        /// I can clear a list.
+        /// </summary>
+        [TestMethod, DynamicData(nameof(TypesUnderTest), DynamicDataSourceType.Method)]
+        public void Clear(IList<object> target)
+        {
+            // Arrange
+            target.Add("elem1");
+            target.Add("elem2");
+            target.Add("elem3");
+
+            // Act
+            target.Clear();
+
+            // Assert
+            Assert.AreEqual(0, target.Count);
+            Assert.IsFalse(target.Contains("elem1"));
+            Assert.IsFalse(target.Contains("elem2"));
+            Assert.IsFalse(target.Contains("elem3"));
+        }
+
+        /// <summary>
+        /// I can copy a list into an array.
+        /// </summary>
+        [TestMethod, DynamicData(nameof(TypesUnderTest), DynamicDataSourceType.Method)]
+        public void CopyTo(IList<object> target)
+        {
+            // Arrange
+            var destination = new object[target.Count];
+
+            // Act
+            target.CopyTo(destination, 0);
+
+            // Assert
+            for (int i = 0; i < destination.Count(); i++)
+            {
+                Assert.AreEqual(target[i], destination[i]);
+            }
+        }
+
+        /// <summary>
+        /// I can copy a list into an array, starting at an offset.
+        /// </summary>
+        [TestMethod, DynamicData(nameof(TypesUnderTest), DynamicDataSourceType.Method)]
+        public void CopyTo_WithOffset(IList<object> target)
+        {
+            // Arrange
+            const int offset = 3;
+            var destination = new object[target.Count + offset];
+
+            // Act
+            target.CopyTo(destination, offset);
+
+            // Assert
+            for (int i = offset; i < destination.Count(); i++)
+            {
+                Assert.AreEqual(target[i - offset], destination[i]);
+            }
+        }
+
+        /// <summary>
+        /// I can get an <see cref="IEnumerator{T}"/> from a list that contains the correct elements.
+        /// </summary>
+        [TestMethod, DynamicData(nameof(TypesUnderTest), DynamicDataSourceType.Method)]
+        public void GetEnumerator(IList<object> target)
+        {
+            // Arrange
+
+            // Act
+            var enumerator = target.GetEnumerator();
+
+            // Assert
+            int i = 0;
+            while (enumerator.MoveNext())
+            {
+                Assert.AreEqual(target[i], enumerator.Current);
+            }
+            Assert.AreEqual(target.Count, i);
         }
     }
 }
