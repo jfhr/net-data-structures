@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace NetDataStructures.Automata
+namespace NetDataStructures.Automata.Internal
 {
     /// <summary>
     /// Generic array that implements Equals() and GetHashCode() methods that compare contents.

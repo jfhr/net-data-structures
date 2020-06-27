@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
-namespace NetDataStructures.Automata
+namespace NetDataStructures.Automata.Internal
 {
     internal static class HashSetExtensions
     {

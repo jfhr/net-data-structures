@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NetDataStructures.Automata;
+﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetDataStructures.Automata;
 
-namespace NetDataStructures.Automata.UnitTests.NFA
+namespace NetDataStructures.UnitTests.NFA
 {
     /// <summary>
-    /// Simple NFA that tests if a word ends with 'aa'.
+    /// NFA that checks for the following regular expression:
+    /// <c> a*(ba*c ∪ c) </c>
+    /// This implementation also has some redundant states.
     /// </summary>
     [TestClass]
-    public class NfaSimpleAaTerminateTest
+    public class NfaRegexATest
     {
         private NondeterministicFiniteStateAutomaton _target;
 
@@ -18,36 +18,38 @@ namespace NetDataStructures.Automata.UnitTests.NFA
         public void Initialize()
         {
             _target = new NondeterministicFiniteStateAutomaton(
-                new [] {'a', 'b'},
-                new [] {"q0", "q1", "q2"},
+                new [] {'a', 'b', 'c'},
+                new [] {"q0", "q1", "q2", "q3", "q4"},
                 new [] {"q0"},
                 new Dictionary<(string State, char Symbol), IEnumerable<string>>
                 {
-                    {("q0", 'a'), new [] {"q0", "q1"}},
-                    {("q0", 'b'), new [] {"q0"}},
-                    {("q1", 'a'), new [] {"q2"}},
+                    {("q0", 'a'), new [] {"q0"}},
+                    {("q0", 'b'), new [] {"q1"}},
+                    {("q0", 'c'), new [] {"q2"}},
+
+                    {("q1", 'a'), new [] {"q1"}},
+                    {("q1", 'c'), new [] {"q2"}},
+                    
+                    {("q3", 'c'), new [] {"q2"}},
+
+                    {("q4", 'a'), new [] {"q4"}},
+                    {("q4", 'b'), new [] {"q2"}},
+                    {("q4", 'c'), new [] {"q3"}},
                 },
-                new [] {"q2"});
-        }
-
-        [TestMethod]
-        public void DerivedDfaStructure()
-        {
-            var result = _target.DeriveDeterministic();
-
-            Assert.AreEqual(3, result.States.Count());
-            Assert.AreEqual("{q0}", result.StartState);
-            Assert.AreEqual(1, result.AcceptStates.Count());
+                new [] {"q2", "q3"});
         }
 
         public static IEnumerable<object[]> TestData => new[]
         {
-            new object[] {"baaa", true},
-            new object[] {"baa", true},
-            new object[] {"aa", true},
-            new object[] {"abaabaa", true},
+            new object[] {"c", true},
+            new object[] {"ac", true},
+            new object[] {"aabc", true},
+            new object[] {"aabaaac", true},
+            new object[] {"abac", true},
             
             new object[] {"", false},
+            new object[] {"baaa", false},
+            new object[] {"aa", false},
             new object[] {"a", false},
             new object[] {"baab", false},
             new object[] {"baababaaabaabbbbaaaab", false},
@@ -61,17 +63,11 @@ namespace NetDataStructures.Automata.UnitTests.NFA
             var dfaResult = dfa.Run(input);
             dfa.MinimizeInPlace();
             var minDfaResult = dfa.Run(input);
-            
+
             Assert.AreEqual(expected, result, "NFA returned wrong result");
             Assert.AreEqual(expected, dfaResult, "NFA returned correct result, but derived DFA did not");
             Assert.AreEqual(expected, minDfaResult, "NFA returned correct result, " +
-                                              "but derived minimized DFA did not");
-        }
-
-        [TestMethod, ExpectedException(typeof(ArgumentException))]
-        public void SymbolNotInAlphabet()
-        {
-            _ = _target.Run("abcab");
+                                                    "but derived minimized DFA did not");
         }
     }
 }

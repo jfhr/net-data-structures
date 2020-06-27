@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NetDataStructures.Automata;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetDataStructures.Automata;
 
-namespace NetDataStructures.Automata.UnitTests.DFA
+namespace NetDataStructures.UnitTests.DFA
 {
     [TestClass]
     public class DfaMinimizeTest

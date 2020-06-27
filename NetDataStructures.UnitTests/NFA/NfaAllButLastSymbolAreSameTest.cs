@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using NetDataStructures.Automata;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetDataStructures.Automata;
 
-namespace NetDataStructures.Automata.UnitTests.NFA
+namespace NetDataStructures.UnitTests.NFA
 {
     /// <summary>
     /// NFA that allows words where all but the last symbol (or all symbols) are the same.

@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using NetDataStructures.Automata;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
-using Microsoft.VisualBasic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetDataStructures.Automata;
 
-namespace NetDataStructures.Automata.UnitTests.NFA
+namespace NetDataStructures.UnitTests.NFA
 {
     [TestClass]
     public class NfaABRepeatingTest

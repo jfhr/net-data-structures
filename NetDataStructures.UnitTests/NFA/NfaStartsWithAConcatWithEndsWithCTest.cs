@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using NetDataStructures.Automata;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetDataStructures.Automata;
 
-namespace NetDataStructures.Automata.UnitTests.NFA
+namespace NetDataStructures.UnitTests.NFA
 {
     [TestClass]
-    public class NfaStartsWithAUnionWithEndsWithCTest
+    public class NfaStartsWithAConcatWithEndsWithCTest
     {
         private NondeterministicFiniteStateAutomaton startsWithANfa;
         private NondeterministicFiniteStateAutomaton endsWithCNfa;
@@ -44,11 +44,16 @@ namespace NetDataStructures.Automata.UnitTests.NFA
 
         public static IEnumerable<object[]> TestData => new[]
         {
-            new object[] {"a", true},
-            new object[] {"c", true},
-            new object[] {"aab", true},
-            new object[] {"bac", true},
+            new object[] {"ac", true}, 
+            new object[] {"acc", true}, 
+            new object[] {"acac", true}, 
+            new object[] {"ababac", true}, 
+            new object[] {"aaabbbccc", true}, 
 
+            new object[] {"a", false},
+            new object[] {"c", false},
+            new object[] {"aab", false},
+            new object[] {"bac", false},
             new object[] {"", false},
             new object[] {"bab", false},
             new object[] {"bacaccccab", false},
@@ -57,7 +62,7 @@ namespace NetDataStructures.Automata.UnitTests.NFA
         [TestMethod, DynamicData("TestData")]
         public void Results(string input, bool expected)
         {
-            var target = startsWithANfa.UnionWith(endsWithCNfa);
+            var target = startsWithANfa.ConcatWith(endsWithCNfa);
             var result = target.Run(input);
             Assert.AreEqual(expected, result);
         }

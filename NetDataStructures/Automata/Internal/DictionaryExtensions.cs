@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
-namespace NetDataStructures.Automata
+namespace NetDataStructures.Automata.Internal
 {
     internal static class DictionaryExtensions
     {
