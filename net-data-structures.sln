@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29123.88
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetDataStructures.ReadmeExamples", "NetDataStructures.ReadmeExamples\NetDataStructures.ReadmeExamples.csproj", "{70B21070-4E8E-4A6A-A3CA-37C878A5AAD1}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D9B59D89-5D36-488E-9C92-4232502D45E7}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
@@ -21,10 +19,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{70B21070-4E8E-4A6A-A3CA-37C878A5AAD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{70B21070-4E8E-4A6A-A3CA-37C878A5AAD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{70B21070-4E8E-4A6A-A3CA-37C878A5AAD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{70B21070-4E8E-4A6A-A3CA-37C878A5AAD1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{383D38E2-D61E-4F2A-946C-FF0A93BCCCA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{383D38E2-D61E-4F2A-946C-FF0A93BCCCA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{383D38E2-D61E-4F2A-946C-FF0A93BCCCA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
