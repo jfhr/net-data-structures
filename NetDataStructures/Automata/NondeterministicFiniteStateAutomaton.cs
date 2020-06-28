@@ -416,12 +416,7 @@ namespace NetDataStructures.Automata
 
             foreach (var c in input)
             {
-                if (!_alphabet.Contains(c))
-                {
-                    throw new ArgumentException(
-                        $"Input character '{c}' not found in alphabet. " +
-                        $"Either add '{c}' to the alphabet, or remove it from the input.");
-                }
+                AutomatonHelper.CheckSymbolInAlphabet(_alphabet, c);
 
                 foreach (var currentState in currentStates)
                 {
