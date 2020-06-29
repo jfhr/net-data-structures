@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace NetDataStructures.Automata.Internal
 {
-    public abstract class PushdownAutomatonBase
+    public abstract class NondeterministicPushdownAutomatonBase
     {
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace NetDataStructures.Automata.Internal
         private string _startState;
         private Dictionary<(string State, char? Symbol, char Pop), HashSet<(string State, string Push)>> _delta;
 
-        protected PushdownAutomatonBase(
+        protected NondeterministicPushdownAutomatonBase(
             IEnumerable<char> alphabet,
             IEnumerable<char> stackAlphabet,
             char initialStackItem,
@@ -146,7 +146,7 @@ namespace NetDataStructures.Automata.Internal
 
                 if (_delta.TryGetValue((state, symbol, stack[^1]), out var edges))
                 {
-                    // Run recursively for every edge. Not the index is incremented bc we consumed a symbol
+                    // Run recursively for every edge. Note the index is incremented bc we consumed a symbol
                     if (edges.Any(edge => RunInternal(stack, input, index + 1, edge)))
                     {
                         return true;

@@ -5,11 +5,7 @@ using NetDataStructures.Automata.Internal;
 
 namespace NetDataStructures.Automata
 {
-    /// <summary>
-    /// A pushdown automaton that accepts an input iif it is in an accepting state and the complete input has been
-    /// consumed. 
-    /// </summary>
-    public class NondeterministicFinalStateAcceptingPushdownAutomaton : NondeterministicPushdownAutomatonBase
+    public class DeterministicFinalStateAcceptingPushdownAutomaton : DeterministicPushdownAutomatonBase
     {
         /// <summary>
         /// Returns the accepting states.
@@ -18,13 +14,13 @@ namespace NetDataStructures.Automata
 
         private HashSet<string> _acceptStates;
 
-        public NondeterministicFinalStateAcceptingPushdownAutomaton(
+        public DeterministicFinalStateAcceptingPushdownAutomaton(
             IEnumerable<char> alphabet,
             IEnumerable<char> stackAlphabet,
             char initialStackItem,
             IEnumerable<string> states,
             string startState,
-            IDictionary<(string State, char? Symbol, char Pop), IEnumerable<(string State, string Push)>> delta,
+            IDictionary<(string State, char? Symbol, char Pop), (string State, string Push)> delta,
             IEnumerable<string> acceptStates
         ) : base(alphabet, stackAlphabet, initialStackItem, states, startState, delta)
         {
@@ -43,9 +39,6 @@ namespace NetDataStructures.Automata
             _acceptStates = acceptStates.ToHashSet();
         }
 
-        /// <summary>
-        /// We accept iif we are in an accepting state and have consumed the entire input. 
-        /// </summary>
         protected override bool IsAcceptingConfiguration(List<char> stack, string state, string input, int index)
         {
             return _acceptStates.Contains(state) && index == input.Length;
