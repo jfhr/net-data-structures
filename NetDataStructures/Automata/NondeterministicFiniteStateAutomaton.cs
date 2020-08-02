@@ -130,7 +130,8 @@ namespace NetDataStructures.Automata
         public DeterministicFiniteStateAutomaton DeriveDeterministic()
         {
             // The combinations that will form the states of the DFA
-            var knownCombinedStates = new HashSet<EquatableHashSet<string>> {new EquatableHashSet<string>(_startStates)};
+            var knownCombinedStates = new HashSet<EquatableHashSet<string>>
+                {new EquatableHashSet<string>(_startStates)};
             // The newly discovered combinations
             var newCombinedStates = new HashSet<EquatableHashSet<string>> {new EquatableHashSet<string>(_startStates)};
             // Name of the initial state of the DFA
@@ -199,65 +200,46 @@ namespace NetDataStructures.Automata
         /// </summary>
         public NondeterministicFiniteStateAutomaton ConcatWith(NondeterministicFiniteStateAutomaton other)
         {
-            // Copy states, initial states, accept states
-            var concatStates = new HashSet<string>(_states);
-            concatStates.UnionWith(other._states);
-
-            var concatStartStates = new HashSet<string>(_startStates);
-            var concatAcceptStates = new HashSet<string>(other._acceptStates);
-
-            // Copy delta, collisions are handled below
-            var concatDelta = new Dictionary<(string State, char Symbol), HashSet<string>>(_delta);
-
             // Find state names to replace and generate corresponding new names
-            var replaceNames = GenerateReplaceNames(concatStates, other._states);
+            var replaceNames = GenerateReplaceNames(other._states);
 
-            // Add new state names
-            concatStates.UnionWith(replaceNames.Values);
+            // Copy this NFA and rename the states accordingly
+            var concat = Copy();
+            concat.RenameStatesInPlace(replaceNames);
+
+            // Copy the renamed accept states, we need them later for adding new connections
+            var renamedAcceptStatesCopy = new HashSet<string>(concat._acceptStates);
+
+            // Union states, use our start states and their accept states
+            concat._states.UnionWith(other._states);
+            concat._acceptStates = new HashSet<string>(other._acceptStates);
+
+            // If we accept the empty word, the start states from the other NFA remain start states
+            if (Run(""))
+            {
+                concat._startStates.UnionWith(other._startStates);
+            }
 
             // Copy transitions from other into combined delta
             foreach (var ((state, symbol), value) in other._delta)
             {
-                var newState = replaceNames.GetValueOrDefault(state) ?? state;
-                var newValue = new HashSet<string>(value);
-                newValue.ReplaceValues(replaceNames);
-                concatDelta[(newState, symbol)] = newValue;
-            }
-
-            // Apply replacements to acceptStates
-            foreach (var (oldName, newName) in replaceNames)
-            {
-                if (other._acceptStates.Contains(oldName))
-                {
-                    concatAcceptStates.Remove(oldName);
-                    concatAcceptStates.Add(newName);
-                }
+                concat._delta.UnionValueWith((state, symbol), value);
             }
 
             // Connect each of our accept states with each state following an initial state of other
-            foreach (var otherStartStateOldName in other._startStates)
+            foreach (var ourAcceptState in renamedAcceptStatesCopy)
             {
-                string otherStartState = replaceNames.GetValueOrDefault(otherStartStateOldName)
-                                         ?? otherStartStateOldName;
-                foreach (var symbol in _alphabet)
+                foreach (var otherStartState in other._startStates)
                 {
-                    foreach (var ourAcceptState in _acceptStates)
+                    foreach (var symbol in _alphabet)
                     {
-                        concatDelta[(ourAcceptState, symbol)].UnionWith(concatDelta[(otherStartState, symbol)]);
+                        var destinationStates = other._delta.GetValueOrEmptySet((otherStartState, symbol));
+                        concat._delta.UnionValueWith((ourAcceptState, symbol), destinationStates);
                     }
                 }
             }
-            
-            // Construct new NFA
-            var result = new NondeterministicFiniteStateAutomaton();
-            result.Initialize(
-                _alphabet,
-                concatStates,
-                concatStartStates,
-                concatDelta,
-                concatAcceptStates
-            );
-            return result;
+
+            return concat;
         }
 
         /// <summary>
@@ -265,43 +247,28 @@ namespace NetDataStructures.Automata
         /// </summary>
         public NondeterministicFiniteStateAutomaton Repeating()
         {
-            var repeatingStates = new HashSet<string>(_states);
-            var repeatingStartStates = new HashSet<string>(_startStates);
-            var repeatingAcceptStates = new HashSet<string>(_acceptStates);
+            var repeating = Copy();
 
-            // Add 1 state accepting the empty word, if it is not already accepted
-            if (!Run(""))
-            {
-                string emptyWordAcceptState = GetNameNotInSet(repeatingStates, "e");
-                repeatingStates.Add(emptyWordAcceptState);
-                repeatingStartStates.Add(emptyWordAcceptState);
-                repeatingAcceptStates.Add(emptyWordAcceptState);
-            }
-            
+            // Add 1 state accepting the empty word
+            var emptyWordAcceptState = Utils.GetNameNotInSet(repeating._states, "e");
+            repeating._states.Add(emptyWordAcceptState);
+            repeating._startStates.Add(emptyWordAcceptState);
+            repeating._acceptStates.Add(emptyWordAcceptState);
+
             // Build new delta
-            var repeatingDelta = new Dictionary<(string State, char Symbol), HashSet<string>>(_delta);
-
             foreach (var acceptState in _acceptStates)
             {
                 foreach (var startState in _startStates)
                 {
                     foreach (var symbol in _alphabet)
                     {
-                        repeatingDelta.UnionValueWith((acceptState, symbol),
+                        repeating._delta.UnionValueWith((acceptState, symbol),
                             _delta.GetValueOrEmptySet((startState, symbol)));
                     }
                 }
             }
 
-            var result = new NondeterministicFiniteStateAutomaton();
-            result.Initialize(
-                _alphabet,
-                repeatingStates,
-                repeatingStartStates,
-                repeatingDelta,
-                repeatingAcceptStates
-            );
-            return result;
+            return repeating;
         }
 
         /// <summary>
@@ -309,92 +276,90 @@ namespace NetDataStructures.Automata
         /// </summary>
         public NondeterministicFiniteStateAutomaton UnionWith(NondeterministicFiniteStateAutomaton other)
         {
+            // Find state names to replace and generate corresponding new names
+            var replaceNames = GenerateReplaceNames(other._states);
+
+            // Copy this NFA and rename the states accordingly
+            var union = Copy();
+            union.RenameStatesInPlace(replaceNames);
+
             // Copy states, initial states, accept states
-            var unionStates = new HashSet<string>(_states);
-            unionStates.UnionWith(other._states);
+            union._states.UnionWith(other._states);
+            union._startStates.UnionWith(other._startStates);
+            union._acceptStates.UnionWith(other._acceptStates);
 
-            var unionStartStates = new HashSet<string>(_startStates);
-            unionStartStates.UnionWith(other._startStates);
-
-            var unionAcceptStates = new HashSet<string>(_acceptStates);
-            unionAcceptStates.UnionWith(other._acceptStates);
-
-            // Copy delta, collisions are handled below
-            var unionDelta = new Dictionary<(string State, char Symbol), HashSet<string>>(_delta);
+            // Copy delta
             foreach (var (key, value) in other._delta)
             {
-                if (!unionDelta.ContainsKey(key))
+                if (!union._delta.ContainsKey(key))
                 {
-                    unionDelta[key] = value;
+                    union._delta[key] = value;
                 }
             }
 
-            // Find state names to replace and generate corresponding new names
-            var replaceNames = GenerateReplaceNames(unionStates, other._states);
+            return union;
+        }
 
-            // Add new state names
-            unionStates.UnionWith(replaceNames.Values);
-
-            foreach (var (oldName, newName) in replaceNames)
-            {
-                if (other._startStates.Contains(oldName))
-                {
-                    unionStartStates.Add(newName);
-                }
-
-                if (other._acceptStates.Contains(oldName))
-                {
-                    unionAcceptStates.Add(newName);
-                }
-
-                foreach (var symbol in _alphabet)
-                {
-                    var deltaValue = other._delta.GetValueOrEmptySet((oldName, symbol));
-                    deltaValue.ReplaceValues(replaceNames);
-                    unionDelta[(newName, symbol)] = deltaValue;
-                }
-            }
-
+        /// <summary>
+        /// Returns an exact copy of this NFA. The resulting NFA will have a reference to the same alphabet, while all
+        /// other properties (states, delta, etc.) will be copies.
+        /// </summary>
+        public NondeterministicFiniteStateAutomaton Copy()
+        {
             var result = new NondeterministicFiniteStateAutomaton();
             result.Initialize(
                 _alphabet,
-                unionStates,
-                unionStartStates,
-                unionDelta,
-                unionAcceptStates
+                new HashSet<string>(_states),
+                new HashSet<string>(_startStates),
+                new Dictionary<(string State, char Symbol), HashSet<string>>(_delta),
+                new HashSet<string>(_acceptStates)
             );
             return result;
         }
 
         /// <summary>
-        /// Generates a new, unique name for each value present in both sets.
+        /// Rename this NFA's states in-place.
         /// </summary>
-        private Dictionary<string, string> GenerateReplaceNames(ICollection<string> origin, IEnumerable<string> other)
+        private void RenameStatesInPlace(Dictionary<string, string> mapping)
         {
-            var replaceNames = new Dictionary<string, string>();
-
-            foreach (var ambState in _states.Intersect(other))
+            _states.ReplaceValues(mapping);
+            _startStates.ReplaceValues(mapping);
+            _acceptStates.ReplaceValues(mapping);
+            var entries = _delta.ToImmutableArray();
+            foreach (var ((state, symbol), value) in entries)
             {
-                replaceNames[ambState] = GetNameNotInSet(origin, ambState);
+                _delta.Remove((state, symbol));
+                var newState = mapping.GetValueOrDefault(state, state);
+                value.ReplaceValues(mapping);
+                _delta[(newState, symbol)] = value;
             }
-
-            return replaceNames;
         }
 
         /// <summary>
-        /// Returns a name not in the <paramref name="origin"/> set.
+        /// Generates a dictionary of replacement names for this automaton's states, so that no value present in
+        /// <paramref name="other"/> is used.
         /// </summary>
-        private static string GetNameNotInSet(ICollection<string> origin, string baseName)
+        private Dictionary<string, string> GenerateReplaceNames(ISet<string> other)
         {
-            string newName;
-            int i = 0;
-            do
-            {
-                i++;
-                newName = $"{baseName} ({i})";
-            } while (origin.Contains(newName));
+            var replaceNames = new Dictionary<string, string>();
 
-            return newName;
+            // Create a set containing the union of our and other state names
+            var existingStates = new HashSet<string>(_states);
+            existingStates.UnionWith(other);
+
+            // Create a set containing the intersection of our and other state names
+            var duplicateStates = new HashSet<string>(_states);
+            duplicateStates.IntersectWith(other);
+
+            // Replace all names from the intersection with new names not in the union
+            foreach (var ambState in duplicateStates)
+            {
+                var newName = Utils.GetNameNotInSet(existingStates, ambState);
+                replaceNames[ambState] = newName;
+                existingStates.Add(newName);
+            }
+
+            return replaceNames;
         }
 
         /// <summary>
@@ -416,7 +381,7 @@ namespace NetDataStructures.Automata
 
             foreach (var c in input)
             {
-                AutomatonHelper.CheckSymbolInAlphabet(_alphabet, c);
+                Utils.CheckSymbolInAlphabet(_alphabet, c);
 
                 foreach (var currentState in currentStates)
                 {

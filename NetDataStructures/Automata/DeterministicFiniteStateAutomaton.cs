@@ -365,7 +365,7 @@ namespace NetDataStructures.Automata
             var currentState = _startState;
             foreach (var c in input)
             {
-                AutomatonHelper.CheckSymbolInAlphabet(_alphabet, c);
+                Utils.CheckSymbolInAlphabet(_alphabet, c);
                 currentState = _delta[(currentState, c)];
             }
 

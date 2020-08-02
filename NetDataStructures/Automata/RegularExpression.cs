@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Text;
 
 namespace NetDataStructures.Automata
 {
@@ -11,7 +13,7 @@ namespace NetDataStructures.Automata
         private string _expr;
 
         private static ImmutableHashSet<char> _reservedSymbols =
-            new[] {'(', ')', '*', '∪', '∅', 'ε'}.ToImmutableHashSet();
+            new[] {'(', ')', '*', '⋅', '∪', '∅', 'ε'}.ToImmutableHashSet();
 
         public RegularExpression(IEnumerable<char> alphabet, string expr)
         {
@@ -44,58 +46,197 @@ namespace NetDataStructures.Automata
             }
         }
 
+        /**
+         * Returns an automaton that implements the same language as this regular expression.
+         */
         public NondeterministicFiniteStateAutomaton DeriveAutomaton()
         {
-            return DeriveAutomatonInternal(_expr);
+            var reversePolish = ConvertToReversePolishNotation(_expr);
+            return ParseReversePolish(reversePolish);
         }
 
-        // (A∪B)*C
-
-        private NondeterministicFiniteStateAutomaton DeriveAutomatonInternal(string expr)
+        /**
+         * Converts a regular expression in infix notation into reverse polish notation.
+         */
+        private string ConvertToReversePolishNotation(string expr)
         {
-            return ParseExpressionWithoutParentheses(expr);
-            // TODO WIP
-            while (true)
+            var output = new StringBuilder(expr.Length);
+            var operatorStack = new Stack<char>();
+            // Indicates if the previous symbol can be on the left side of a juxtaposition 
+            // (implicit complex product, i.e.  "ab" which is equivalent to "a⋅b")
+            var possibleJuxtaposition = false;
+
+            foreach (var c in expr)
             {
-                var localEndIndex = expr.IndexOf(')');
-                var localStartIndex = expr.LastIndexOf('(', 0, localEndIndex);
-                var subExpr = expr.Substring(localStartIndex, localEndIndex - localStartIndex);
-                var subMachine = ParseExpressionWithoutParentheses(subExpr);
+                ProcessToken(c, ref possibleJuxtaposition, operatorStack, output);
             }
+
+            // Push remaining tokens onto the output
+            PopTokens(new[] {'*', '⋅', '∪'}, operatorStack, output);
+
+            return output.ToString();
         }
 
-        private NondeterministicFiniteStateAutomaton ParseExpressionWithoutParentheses(string expr)
+        private void ProcessToken(char c, ref bool possibleJuxtaposition, Stack<char> operatorStack,
+            StringBuilder output)
         {
-            // unionMachine will implement the entire expression without parentheses
-            NondeterministicFiniteStateAutomaton unionMachine = null;
-            var unionParts = expr.Split('∪');
-            
-            foreach (var part in unionParts)
+            switch (c)
             {
-                // part machine will contain one part that is being unioned
-                NondeterministicFiniteStateAutomaton partMachine = null;
-                for (var i = 0; i < part.Length; i++)
-                {
-                    // symbolMachine will contain a single symbol, optionally with the repeating operator
-                    var symbol = part[i];
-                    var symbolMachine = CreateAutomatonFromSymbol(symbol);
-                    if (i + 1 < part.Length && part[i + 1] == '*')
+                // If the token is a left parenthesis, push it onto the operator stack
+                case '(':
+                    // If a complex product by juxtaposition is encountered, push the complex product operator
+                    // onto the operator stack
+                    if (possibleJuxtaposition)
                     {
-                        symbolMachine = symbolMachine.Repeating();
-                        i++;
+                        ProcessToken('⋅', ref possibleJuxtaposition, operatorStack, output);
                     }
-                    
-                    // merge each symbolMachine into partMachine
-                    partMachine = partMachine?.ConcatWith(symbolMachine) ?? symbolMachine;
-                }
 
-                // merge each partMachine into unionMachine
-                unionMachine = unionMachine?.UnionWith(partMachine) ?? partMachine;
+                    possibleJuxtaposition = false;
+                    operatorStack.Push(c);
+                    break;
+
+                // If the token is a right parenthesis:
+                case ')':
+                    possibleJuxtaposition = true;
+                    // Pop tokens from the operator stack to the output, until a left parenthesis is found
+                    PopTokens(new[] {'*', '⋅', '∪'}, operatorStack, output);
+
+                    // Discard the left parenthesis on the operator stack
+                    // If no left parenthesis is found, there are mismatched parentheses
+                    if (operatorStack.Pop() != '(')
+                    {
+                        throw new MismatchedParenthesesException();
+                    }
+
+                    break;
+
+                // If the token is a union operator:
+                case '∪':
+                    possibleJuxtaposition = false;
+                    // Pop operators with higher precedence from the operator stock to the output
+                    PopTokens(new[] {'*', '⋅'}, operatorStack, output);
+                    // Push it onto the operator stack
+                    operatorStack.Push(c);
+                    break;
+
+                // If the token is a complex product operator:
+                case '⋅':
+                    possibleJuxtaposition = false;
+                    // Pop operators with higher precedence from the operator stock to the output
+                    PopTokens(new[] {'*'}, operatorStack, output);
+                    // Push it onto the operator stack
+                    operatorStack.Push(c);
+                    break;
+
+                // If the token is a Kleene operator (highest precedence):
+                case '*':
+                    possibleJuxtaposition = true;
+                    // Push it onto the operator stack
+                    operatorStack.Push(c);
+                    break;
+
+                // Otherwise, the token is a sub-expression and is pushed to the output
+                default:
+                    // If a complex product by juxtaposition is encountered, push the complex product operator
+                    // onto the operator stack
+                    if (possibleJuxtaposition)
+                    {
+                        ProcessToken('⋅', ref possibleJuxtaposition, operatorStack, output);
+                    }
+
+                    possibleJuxtaposition = true;
+                    output.Append(c);
+                    break;
             }
-
-            return unionMachine;
         }
 
+        /**
+         * Parse a regular expression in reverse polish notation into an automaton.
+         */
+        private NondeterministicFiniteStateAutomaton ParseReversePolish(string expr)
+        {
+            var partialAutomata = new Stack<NondeterministicFiniteStateAutomaton>();
+            foreach (var c in expr)
+            {
+                switch (c)
+                {
+                    //{'(', ')', '*', '⋅', '∪', '∅', 'ε'}
+                    case '∪':
+                    {
+                        var right = partialAutomata.Pop();
+                        var left = partialAutomata.Pop();
+                        partialAutomata.Push(left.UnionWith(right));
+                        break;
+                    }
+                    case '⋅':
+                    {
+                        var right = partialAutomata.Pop();
+                        var left = partialAutomata.Pop();
+                        partialAutomata.Push(left.ConcatWith(right));
+                        break;
+                    }
+                    case '*':
+                        partialAutomata.Push(partialAutomata.Pop().Repeating());
+                        break;
+                    case '∅':
+                        partialAutomata.Push(CreateEmptyAutomaton());
+                        break;
+                    case 'ε':
+                        partialAutomata.Push(CreateEmptyWordAutomaton());
+                        break;
+                    default:
+                        partialAutomata.Push(CreateAutomatonFromSymbol(c));
+                        break;
+                }
+            }
+
+            return partialAutomata.Single();
+        }
+
+        /**
+         * While one of the given <paramref name="tokens"/> is at the top of the
+         * <paramref name="from"/> stack, pop it and append it to the <paramref name="to"/>
+         * StringBuilder.
+         */
+        private void PopTokens(char[] tokens, Stack<char> from, StringBuilder to)
+        {
+            while (from.TryPeek(out char token) && tokens.Contains(token))
+            {
+                to.Append(from.Pop());
+            }
+        }
+
+        /**
+         * Creates an automaton that accepts only the empty word
+         */
+        private NondeterministicFiniteStateAutomaton CreateEmptyWordAutomaton()
+        {
+            return new NondeterministicFiniteStateAutomaton(
+                alphabet: _alphabet,
+                states: new string[] {"s0"},
+                startStates: new string[] {"s0"},
+                delta: new Dictionary<(string State, char Symbol), IEnumerable<string>>(),
+                acceptStates: new string[] {"s0"}
+            );
+        }
+
+        /**
+         * Creates an automaton that accepts nothing
+         */
+        private NondeterministicFiniteStateAutomaton CreateEmptyAutomaton()
+        {
+            return new NondeterministicFiniteStateAutomaton(
+                alphabet: _alphabet,
+                states: new string[0],
+                startStates: new string[0],
+                delta: new Dictionary<(string State, char Symbol), IEnumerable<string>>(),
+                acceptStates: new string[0]
+            );
+        }
+
+        /**
+         * Creates an automaton that accepts the language containing only the given symbol
+         */
         private NondeterministicFiniteStateAutomaton CreateAutomatonFromSymbol(char symbol)
         {
             return new NondeterministicFiniteStateAutomaton(
@@ -111,13 +252,17 @@ namespace NetDataStructures.Automata
         }
     }
 
-    internal class ParserException : Exception
+
+    [Serializable]
+    public class MismatchedParenthesesException : Exception
     {
-        public ParserException()
+        public MismatchedParenthesesException() : base()
         {
         }
 
-        public ParserException(string message) : base(message)
+        protected MismatchedParenthesesException(
+            SerializationInfo info,
+            StreamingContext context) : base(info, context)
         {
         }
     }

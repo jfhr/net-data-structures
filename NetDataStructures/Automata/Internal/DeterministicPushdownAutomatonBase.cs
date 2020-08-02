@@ -141,7 +141,7 @@ namespace NetDataStructures.Automata.Internal
             if (index < input.Length)
             {
                 var symbol = input[index];
-                AutomatonHelper.CheckSymbolInAlphabet(_alphabet, symbol);
+                Utils.CheckSymbolInAlphabet(_alphabet, symbol);
 
                 if (_delta.TryGetValue((state, symbol, stack[^1]), out var edge))
                 {
