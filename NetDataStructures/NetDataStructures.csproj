@@ -8,6 +8,28 @@
     <Compile Remove="Matrices\Internal\**" />
     <EmbeddedResource Remove="Matrices\Internal\**" />
     <None Remove="Matrices\Internal\**" />
+    <Compile Update="LinearAlgebra\Vector.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Vector.cs</LastGenOutput>
+    </Compile>
+    <Compile Update="LinearAlgebra\Vector_Template.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Vector_Template.tt</DependentUpon>
+    </Compile>
+    <None Update="LinearAlgebra\Vector_Template.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Vector_Template.cs</LastGenOutput>
+    </None>
+    <None Update="LinearAlgebra\Matrix_Template.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Matrix_Template.cs</LastGenOutput>
+    </None>
+    <Compile Update="LinearAlgebra\Matrix_Template.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Matrix_Template.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
