@@ -156,11 +156,12 @@ namespace NetDataStructures.Automata
         private NondeterministicFiniteStateAutomaton ParseReversePolish(string expr)
         {
             var partialAutomata = new Stack<NondeterministicFiniteStateAutomaton>();
-            foreach (var c in expr)
+            for (int i = 0; i < expr.Length; i++)
             {
+                char c = expr[i];
                 switch (c)
                 {
-                    //{'(', ')', '*', '⋅', '∪', '∅', 'ε'}
+                    //{'(', ')', '*', '⋅', '∪', '∅', 'ε'} 
                     case '∪':
                     {
                         var right = partialAutomata.Pop();

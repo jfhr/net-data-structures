@@ -214,10 +214,10 @@ namespace NetDataStructures.Automata
             concat._states.UnionWith(other._states);
             concat._acceptStates = new HashSet<string>(other._acceptStates);
 
-            // If we accept the empty word, the start states from the other NFA remain start states
-            if (Run(""))
+            // Iff the other NFA accepts the empty word, we keep our accept states
+            if (other.Run(""))
             {
-                concat._startStates.UnionWith(other._startStates);
+                concat._acceptStates.UnionWith(renamedAcceptStatesCopy);
             }
 
             // Copy transitions from other into combined delta

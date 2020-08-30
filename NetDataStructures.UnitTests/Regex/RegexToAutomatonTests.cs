@@ -108,5 +108,32 @@ namespace NetDataStructures.UnitTests.Regex
             Assert.IsTrue(automaton.Run("abbbabbab"));
             Assert.IsTrue(automaton.Run("aabbbabbab"));
         }
+        
+        [TestMethod]
+        public void ComplexRegexBeta()
+        {
+            var regex = new RegularExpression(new [] {'a', 'b', 'c'}, "(a*bc)∪ε∪∅");
+            var automaton = regex.DeriveAutomaton();
+            
+            Assert.IsFalse(automaton.Run("a"));
+            Assert.IsFalse(automaton.Run("b"));
+            Assert.IsFalse(automaton.Run("c"));
+            Assert.IsFalse(automaton.Run("ab"));
+            Assert.IsFalse(automaton.Run("ac"));
+            Assert.IsFalse(automaton.Run("bac"));
+            Assert.IsFalse(automaton.Run("abac"));
+            Assert.IsFalse(automaton.Run("cc"));
+            Assert.IsFalse(automaton.Run("cbc"));
+            Assert.IsFalse(automaton.Run("cabc"));
+            Assert.IsFalse(automaton.Run("caabc"));
+            Assert.IsFalse(automaton.Run("abbc"));
+            Assert.IsFalse(automaton.Run("aaabca"));
+            
+            Assert.IsTrue(automaton.Run(""));
+            Assert.IsTrue(automaton.Run("bc"));
+            Assert.IsTrue(automaton.Run("abc"));
+            Assert.IsTrue(automaton.Run("aabc"));
+            Assert.IsTrue(automaton.Run("aaabc"));
+        }
     }
 }
