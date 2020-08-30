@@ -1,8 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-
+using NetDataStructures.LinearAlgebra;
 using NetDataStructures.Lists;
-using NetDataStructures.Matrices;
 
 namespace NetDataStructures.ReadmeExamples
 {
@@ -35,17 +34,17 @@ namespace NetDataStructures.ReadmeExamples
         [TestMethod]
         public void MatrixExample()
         {
-            Matrix even = new Matrix(new int[,] {
+            DoubleMatrix even = new DoubleMatrix(new double[,] {
                 { 2, 2 },
                 { 4, 4 },
             });
 
-            Matrix odd = new Matrix(new int[,] {
+            DoubleMatrix odd = new DoubleMatrix(new double[,] {
                 { 1, 1 },
                 { 3, 3 },
             });
 
-            Matrix product = even * odd;
+            DoubleMatrix product = even * odd;
 
             Assert.AreEqual(16, product[1, 1]);
         }

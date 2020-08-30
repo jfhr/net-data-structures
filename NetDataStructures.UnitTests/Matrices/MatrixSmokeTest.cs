@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using NetDataStructures.Matrices;
+using NetDataStructures.LinearAlgebra;
 
 namespace NetDataStructures.UnitTests.Matrices
 {
@@ -8,24 +7,24 @@ namespace NetDataStructures.UnitTests.Matrices
     public class MatrixSmokeTest
     {
         /// <summary>
-        /// I can create a matrix from an int[,].
+        /// I can create a matrix from a double[,].
         /// </summary>
         [TestMethod]
         public void CreateMatrix()
         {
             // Arrange
-            var numbers = new int[,]
+            var numbers = new double[,]
             {
-                { 1, 2 },
-                { 3, 4 },
+                {1, 2},
+                {3, 4},
             };
 
             // Act
-            Matrix matrix = new Matrix(numbers);
+            DoubleMatrix matrix = new DoubleMatrix(numbers);
 
             // Assert
-            Assert.AreEqual(2, matrix.SizeX);
-            Assert.AreEqual(2, matrix.SizeY);
+            Assert.AreEqual(2, matrix.RowCount);
+            Assert.AreEqual(2, matrix.ColumnCount);
         }
 
         /// <summary>
@@ -35,22 +34,20 @@ namespace NetDataStructures.UnitTests.Matrices
         public void ExpandMatrix()
         {
             // Arrange
-            var numbers = new int[,]
+            DoubleMatrix matrix = new DoubleMatrix(new double[,]
             {
-                { 1, 2 },
-                { 3, 4 },
-            };
-
-            Matrix matrix = new Matrix(numbers);
+                {1, 2},
+                {3, 4},
+            });
 
             // Act
-            Matrix expandedMatrix = new Matrix(matrix, 2, 4);
+            DoubleMatrix expandedMatrix = new DoubleMatrix(matrix, 2, 4);
 
             // Assert
-            Assert.That.MatrixMatches(new int[,]
+            Assert.That.MatrixMatches(new double[,]
             {
-                { 1, 2, 0, 0 },
-                { 3, 4, 0, 0 },
+                {1, 2, 0, 0},
+                {3, 4, 0, 0},
             }, expandedMatrix);
         }
 
@@ -61,24 +58,23 @@ namespace NetDataStructures.UnitTests.Matrices
         public void MatrixNumberAccess()
         {
             // Arrange
-            var numbers = new int[,]
+            var matrix = new DoubleMatrix(new double[,]
             {
-                { 1, 2 },
-                { 3, 4 },
-            };
-            var matrix = new Matrix(numbers);
+                {1, 2},
+                {3, 4},
+            });
 
             // Act
-            int upperLeft = numbers[0, 0];
-            int upperRight = numbers[0, 1];
-            int lowerLeft = numbers[1, 0];
-            int lowerRight = numbers[1, 1];
+            double upperLeft = matrix[0, 0];
+            double upperRight = matrix[0, 1];
+            double lowerLeft = matrix[1, 0];
+            double lowerRight = matrix[1, 1];
 
             // Assert
-            Assert.AreEqual(1, upperLeft);
-            Assert.AreEqual(2, upperRight);
-            Assert.AreEqual(3, lowerLeft);
-            Assert.AreEqual(4, lowerRight);
+            Assert.AreEqual(1, upperLeft, LinearAlgebraOptions.Tolerance);
+            Assert.AreEqual(2, upperRight, LinearAlgebraOptions.Tolerance);
+            Assert.AreEqual(3, lowerLeft, LinearAlgebraOptions.Tolerance);
+            Assert.AreEqual(4, lowerRight, LinearAlgebraOptions.Tolerance);
         }
 
         /// <summary>
@@ -88,22 +84,21 @@ namespace NetDataStructures.UnitTests.Matrices
         public void Scalarproduct()
         {
             // Arrange
-            var numbers = new int[,]
+            var matrix = new DoubleMatrix(new double[,]
             {
-                { 1, 2 },
-                { 3, 4 },
-            };
-            var matrix = new Matrix(numbers);
+                {1, 2},
+                {3, 4},
+            });
             var scalar = 4;
 
             // Act
-            Matrix result = scalar * matrix;
+            DoubleMatrix result = scalar * matrix;
 
             // Assert
-            Assert.That.MatrixMatches(new int[,]
+            Assert.That.MatrixMatches(new double[,]
             {
-                { 4, 8, },
-                { 12, 16, },
+                {4, 8,},
+                {12, 16,},
             }, result);
         }
 
@@ -111,25 +106,24 @@ namespace NetDataStructures.UnitTests.Matrices
         /// I can get a zero matrix by multiplying an existing matrix with 0.
         /// </summary>
         [TestMethod]
-        public void ScalarproductBy0()
+        public void ScalarProductBy0()
         {
             // Arrange
-            var numbers = new int[,]
+            var matrix = new DoubleMatrix(new double[,]
             {
-                { 1, 2 },
-                { 3, 4 },
-            };
-            var matrix = new Matrix(numbers);
+                {1, 2},
+                {3, 4},
+            });
             var scalar = 0;
 
             // Act
-            Matrix result = scalar * matrix;
+            DoubleMatrix result = scalar * matrix;
 
             // Assert
-            Assert.That.MatrixMatches(new int[,]
+            Assert.That.MatrixMatches(new double[,]
             {
-                { 0, 0, },
-                { 0, 0, },
+                {0, 0,},
+                {0, 0,},
             }, result);
         }
 
@@ -140,28 +134,26 @@ namespace NetDataStructures.UnitTests.Matrices
         public void AddMatrices()
         {
             // Arrange
-            var numbers0 = new int[,]
+            var matrix0 = new DoubleMatrix(new double[,]
             {
-                { 1, 2 },
-                { 3, 4 },
-            };
-            var matrix0 = new Matrix(numbers0);
+                {1, 2},
+                {3, 4},
+            });
 
-            var numbers1 = new int[,]
+            var matrix1 = new DoubleMatrix(new double[,]
             {
-                { 5, 3 },
-                { 1, -1 },
-            };
-            var matrix1 = new Matrix(numbers1);
+                {5, 3},
+                {1, -1},
+            });
 
             // Act
-            Matrix result = matrix0 + matrix1;
+            DoubleMatrix result = matrix0 + matrix1;
 
             // Assert
-            Assert.That.MatrixMatches(new int[,]
+            Assert.That.MatrixMatches(new double[,]
             {
-                { 6, 5, },
-                { 4, 3, },
+                {6, 5,},
+                {4, 3,},
             }, result);
         }
 
@@ -173,23 +165,21 @@ namespace NetDataStructures.UnitTests.Matrices
         public void AddMatrices_DifferentLengths_Exception()
         {
             // Arrange
-            var numbers0 = new int[,]
+            var matrix0 = new DoubleMatrix(new double[,]
             {
-                { 1, 2 },
-                { 3, 4 },
-                { 5, 6 },
-            };
-            var matrix0 = new Matrix(numbers0);
+                {1, 2},
+                {3, 4},
+                {5, 6},
+            });
 
-            var numbers1 = new int[,]
+            var matrix1 = new DoubleMatrix(new double[,]
             {
-                { 5, 3 },
-                { 1, -1 },
-            };
-            var matrix1 = new Matrix(numbers1);
+                {5, 3},
+                {1, -1},
+            });
 
             // Act
-            Matrix result = matrix0 + matrix1;
+            DoubleMatrix result = matrix0 + matrix1;
         }
 
         /// <summary>
@@ -205,28 +195,51 @@ namespace NetDataStructures.UnitTests.Matrices
         public void MultiplyMatrices()
         {
             // Arrange
-            var numbers0 = new int[,]
+            var matrix0 = new DoubleMatrix(new double[,]
             {
-                { 1, 2 },
-                { 3, 4 },
-            };
-            var matrix0 = new Matrix(numbers0);
+                {1, 2},
+                {3, 4},
+            });
 
-            var numbers1 = new int[,]
+            var matrix1 = new DoubleMatrix(new double[,]
             {
-                { 5, 3 },
-                { 1, -1 },
-            };
-            var matrix1 = new Matrix(numbers1);
+                {5, 3},
+                {1, -1},
+            });
 
             // Act
-            Matrix result = matrix0 * matrix1;
+            DoubleMatrix result = matrix0 * matrix1;
 
             // Assert
-            Assert.That.MatrixMatches(new int[,]
+            Assert.That.MatrixMatches(new double[,]
             {
-                { 7, 1, },
-                { 19, 5, },
+                {7, 1,},
+                {19, 5,},
+            }, result);
+        }
+
+        /// <summary>
+        /// I can get the transpose of a matrix.
+        /// </summary>
+        [TestMethod]
+        public void TransposeMatrix()
+        {
+            // Arrange
+            var input = new DoubleMatrix(new double[,]
+            {
+                {1, 2, 3},
+                {4, 5, 6},
+            });
+
+            // Act
+            DoubleMatrix result = input.Transpose();
+
+            // Assert
+            Assert.That.MatrixMatches(new double[,]
+            {
+                {1, 4},
+                {2, 5},
+                {3, 6},
             }, result);
         }
 
@@ -238,22 +251,48 @@ namespace NetDataStructures.UnitTests.Matrices
         public void MultiplyMatrices_IncompatibleDimensions_Exception()
         {
             // Arrange
-            var numbers0 = new int[,]
+            var matrix0 = new DoubleMatrix(new double[,]
             {
-                { 1, 2 },
-                { 3, 4 },
-            };
-            var matrix0 = new Matrix(numbers0);
+                {1, 2},
+                {3, 4},
+            });
 
-            var numbers1 = new int[,]
+            var matrix1 = new DoubleMatrix(new double[,]
             {
-                { 5, 3, 1 },
-                { 1, -1, -3 },
-            };
-            var matrix1 = new Matrix(numbers1);
+                {5, 3, 1},
+                {1, -1, -3},
+            });
 
             // Act
-            Matrix result = matrix0 * matrix1;
+            DoubleMatrix result = matrix0 * matrix1;
+        }
+
+
+        /// <summary>
+        /// I can get the product of a matrix and a vector.
+        /// </summary>
+        /// <remarks>
+        /// +------+   +------+   +-------+
+        /// | 1  2 |   | 5  3 |   |  7  1 |
+        /// | 3  4 | * | 1 -1 | = | 19  5 |
+        /// +------+   +------+   +-------+
+        /// </remarks>
+        [TestMethod]
+        public void MatrixVectorMultiplication()
+        {
+            // Arrange
+            var a = new DoubleMatrix(new double[,]
+            {
+                {1, -1, 2},
+                {0, -3, 1},
+            });
+            var v = new DoubleVector(new double[] {2, 1, 0});
+
+            // Act
+            DoubleVector result = a * v;
+
+            // Assert
+            Assert.That.VectorMatches(new double[] {1, -3}, result);
         }
     }
 }
