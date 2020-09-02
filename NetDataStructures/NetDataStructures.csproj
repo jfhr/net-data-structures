@@ -36,4 +36,8 @@
     <PackageReference Include="System.Collections.Immutable" Version="5.0.0-preview.6.20305.6" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
 </Project>

@@ -1,9 +1,6 @@
 # net-data-structures
 
 This repository contains implementations of various data structures in .NET, such as lists and matrices.
-They are designed to be usable from any .NET language.
-
-All the examples shown here are verified with unit tests, see the `NetDataStructures.ReadmeExamples` folder.
 
 ## Lists
 
@@ -31,26 +28,28 @@ list.Add("foo");
 Console.WriteLine(list.IndexOf("foo"));  // 0
 ```
 
-## Matrix
+## Vectors & Matrices
 
-Integer matrix that supports basic mathematical operations, including:
+Vectors and matrices exist for all underlying numeric types (`Int32Matrix`, `Uint64Vector`, `DoubleMatrix`, etc.) except for `decimal`.
+They support basic mathematical operations, such as:
 
 - matrix ± matrix
 - matrix * scalar
+- matrix * vector
 - matrix * matrix
 
 ```CSharp
-Matrix even = new Matrix(new int[,] {
+var even = new Int32Matrix(new int[,] {
     { 2, 2 },
     { 4, 4 },
 });
 
-Matrix odd = new Matrix(new int[,] {
+var odd = new Int32Matrix(new int[,] {
     { 1, 1 },
     { 3, 3 },
 });
 
-Matrix product = even * odd;
+Int32Matrix product = even * odd;
 
 Console.WriteLine(product[1, 1]);  // 16
 ```

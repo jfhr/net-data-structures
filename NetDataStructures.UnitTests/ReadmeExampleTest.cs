@@ -34,17 +34,17 @@ namespace NetDataStructures.ReadmeExamples
         [TestMethod]
         public void MatrixExample()
         {
-            DoubleMatrix even = new DoubleMatrix(new double[,] {
+            Int32Matrix even = new Int32Matrix(new int[,] {
                 { 2, 2 },
                 { 4, 4 },
             });
 
-            DoubleMatrix odd = new DoubleMatrix(new double[,] {
+            Int32Matrix odd = new Int32Matrix(new int[,] {
                 { 1, 1 },
                 { 3, 3 },
             });
 
-            DoubleMatrix product = even * odd;
+            Int32Matrix product = even * odd;
 
             Assert.AreEqual(16, product[1, 1]);
         }
