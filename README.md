@@ -4,12 +4,11 @@ This repository contains implementations of various data structures in .NET, suc
 
 ## Lists
 
-Various generic lists. All types implement the `IList<T>` interface.
-See Microsoft's documentation for this interface.
+Various generic lists. All types implement the [`IList<T>`](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ilist-1?view=netcore-3.1) interface.
 
 ### ArrayList&lt;T&gt;
 
-An implementation similar to the builtin `List<T>` with slight performance improvements.
+An implementation similar to the builtin `List<T>`.
 
 ```CSharp
 IList<string> list = new ArrayList<string>(4);
@@ -19,8 +18,7 @@ Console.WriteLine(list.Count);  // 1
 
 ### RecursiveSinglyLinkedList&lt;T&gt;
 
-Significantly worse performance than the builtin `LinkedList<T>`, which is doubly-linked.
-Not recommended for real-world use.
+Singly-linked list.
 
 ```CSharp
 IList<string> list = new RecursiveSinglyLinkedList<string>();
@@ -33,7 +31,7 @@ Console.WriteLine(list.IndexOf("foo"));  // 0
 Vectors and matrices exist for all underlying numeric types (`Int32Matrix`, `Uint64Vector`, `DoubleMatrix`, etc.) except for `decimal`.
 They support basic mathematical operations, such as:
 
-- matrix ± matrix
+- matrix Â± matrix
 - matrix * scalar
 - matrix * vector
 - matrix * matrix
