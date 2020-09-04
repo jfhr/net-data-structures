@@ -9,7 +9,7 @@ namespace NetDataStructures.Automata
     /// <summary>
     /// A deterministic finite state automaton that accepts or rejects a given string of symbols.
     /// </summary>
-    public class DeterministicFiniteStateAutomaton
+    public class DeterministicFiniteStateAutomaton : IAutomaton
     {
         /// <summary>
         /// Returns the underlying alphabet.
@@ -360,7 +360,7 @@ namespace NetDataStructures.Automata
         /// <exception cref="ArgumentException">
         /// One of the input characters was not found in the alphabet.
         /// </exception>
-        public bool Run(IEnumerable<char> input)
+        public bool Run(string input)
         {
             var currentState = _startState;
             foreach (var c in input)

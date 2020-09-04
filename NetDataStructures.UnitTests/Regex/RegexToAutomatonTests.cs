@@ -3,7 +3,6 @@ using NetDataStructures.Automata;
 
 namespace NetDataStructures.UnitTests.Regex
 {
-    [TestClass]
     public class RegexToAutomatonTests
     {
         [TestMethod]
@@ -206,6 +205,9 @@ namespace NetDataStructures.UnitTests.Regex
                 Assert.IsFalse(automaton.Run("00.01"));
                 Assert.IsFalse(automaton.Run("00.00"));
                 Assert.IsFalse(automaton.Run("01.32"));
+                Assert.IsFalse(automaton.Run("01.33"));
+                Assert.IsFalse(automaton.Run("01.40"));
+                Assert.IsFalse(automaton.Run("01.50"));
                 Assert.IsFalse(automaton.Run("02.29"));
                 Assert.IsFalse(automaton.Run("02.30"));
                 Assert.IsFalse(automaton.Run("02.31"));
@@ -220,6 +222,10 @@ namespace NetDataStructures.UnitTests.Regex
                 Assert.IsFalse(automaton.Run("10.32"));
                 Assert.IsFalse(automaton.Run("11.31"));
                 Assert.IsFalse(automaton.Run("12.32"));
+                Assert.IsFalse(automaton.Run("13.00"));
+                Assert.IsFalse(automaton.Run("13.01"));
+                Assert.IsFalse(automaton.Run("13.02"));
+                Assert.IsFalse(automaton.Run("13.30"));
             }
         }
     }

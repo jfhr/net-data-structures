@@ -6,7 +6,7 @@ using NetDataStructures.Automata.Internal;
 
 namespace NetDataStructures.Automata
 {
-    public class NondeterministicFiniteStateAutomaton
+    public class NondeterministicFiniteStateAutomaton : IAutomaton
     {
         /// <summary>
         /// Returns the underlying alphabet.
@@ -374,7 +374,7 @@ namespace NetDataStructures.Automata
         /// <exception cref="ArgumentException">
         /// One of the input characters was not found in the alphabet.
         /// </exception>
-        public bool Run(IEnumerable<char> input)
+        public bool Run(string input)
         {
             var currentStates = _startStates.ToHashSet();
             var newStates = new HashSet<string>();

@@ -7,7 +7,7 @@ namespace NetDataStructures.Automata
     /// A pushdown automaton that accepts an input iif it is in an accepting state and the complete input has been
     /// consumed. 
     /// </summary>
-    public class NondeterministicEmptyStackAcceptingPushdownAutomaton : NondeterministicPushdownAutomatonBase
+    public class NondeterministicEmptyStackAcceptingPushdownAutomaton : NondeterministicPushdownAutomatonBase, IAutomaton
     {
         public NondeterministicEmptyStackAcceptingPushdownAutomaton(
             IEnumerable<char> alphabet,
