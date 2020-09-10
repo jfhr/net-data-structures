@@ -17,6 +17,9 @@ namespace NetDataStructures.Automata
 
         public RegularExpression(IEnumerable<char> alphabet, string expr)
         {
+            if (alphabet == null) throw new ArgumentNullException(nameof(alphabet));
+            if (string.IsNullOrEmpty(expr)) throw new ArgumentException("Value cannot be null or empty.", nameof(expr));
+
             _expr = expr;
             _alphabet = alphabet.ToImmutableHashSet();
 
