@@ -8,7 +8,7 @@ namespace NetDataStructures.UnitTests.Regex
     {
         protected abstract IEnumerable<(string Input, bool Expected)> TestData { get; }
         protected abstract RegularExpression Target { get; }
-
+        
         [TestMethod]
         public void RunNfa()
         {
@@ -37,8 +37,7 @@ namespace NetDataStructures.UnitTests.Regex
         {
             foreach (var (input, expected) in TestData)
             {
-                Assert.AreEqual(expected, nfa.Run(input),
-                    $"<{input}>: Returned {!expected}");
+                Assert.AreEqual(expected, nfa.Run(input), $"Input: <{input}>");
             }
         }
     }

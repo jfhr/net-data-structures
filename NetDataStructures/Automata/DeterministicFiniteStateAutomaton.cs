@@ -140,7 +140,7 @@ namespace NetDataStructures.Automata
         /// </summary>
         public DeterministicFiniteStateAutomaton Minimize()
         {
-            var copy = new DeterministicFiniteStateAutomaton(_alphabet, _states, _startState, _delta, _states);
+            var copy = new DeterministicFiniteStateAutomaton(_alphabet, _states, _startState, _delta, _acceptStates);
             copy.MinimizeInPlace();
             return copy;
         }
@@ -151,160 +151,155 @@ namespace NetDataStructures.Automata
         public void MinimizeInPlace()
         {
             _states = GetReachableStates();
-            var equivalencyGroups = GroupStatesByEquivalency();
-            _states = EliminateStatesUsingEquivalencyGroups(equivalencyGroups);
+            var eqGroups = ComputeNerodeEquivalencyGroups();
+            foreach (var eg in eqGroups)
+            {
+                MergeStates(eg);
+            }
             _acceptStates.IntersectWith(_states);
-            _delta = _delta
-                .Where(x => _states.Contains(x.Key.State))
-                .ToDictionary(x => x.Key, x => x.Value);
+            IntersectDeltaWithStates();
         }
 
         /// <summary>
-        /// Changes delta to ensure only one value per equivalency group is used.
-        /// Also returns the list of states to keep.
-        /// The start state is always kept.
-        /// 
-        /// WARNING: This manipulates <paramref name="equivalencyGroups"/>. 
+        /// Removes all relations from delta that contain states that no longer exist.
         /// </summary>
-        private HashSet<string> EliminateStatesUsingEquivalencyGroups(IEnumerable<List<string>> equivalencyGroups)
+        private void IntersectDeltaWithStates()
         {
-            var keep = new HashSet<string>();
-            bool hasEncounteredInitial = false;
-            foreach (var equivalencyGroup in equivalencyGroups.Where(x => x != null))
+            foreach (var (state, symbol) in _delta.Keys)
             {
-                string keepState;
-                // Ensure we don't eliminate the start state
-                if (!hasEncounteredInitial && equivalencyGroup.Contains(_startState))
+                if (!_states.Contains(state))
                 {
-                    keepState = _startState;
-                    hasEncounteredInitial = true;
+                    _delta.Remove((state, symbol));
                 }
-                // Otherwise, just use any state from the group
-                else
-                {
-                    keepState = equivalencyGroup[0];
-                    equivalencyGroup.Remove(keepState);
-                }
+            }
+        }
 
-                keep.Add(keepState);
+        /// <summary>
+        /// Merges multiple states into one. This will not change the DFA behavior if the states are in the same
+        /// Nerode equivalence class.
+        /// </summary>
+        private void MergeStates(ISet<string> mergeStates)
+        {
+            if (mergeStates.Count == 0)
+            {
+                return;
+            }
+            
+            // If the startState is in the set, keep it, otherwise keep an arbitrary one of the states
+            string keepState = mergeStates.Contains(_startState)
+                ? _startState
+                : mergeStates.First();
 
-                // We have to iterate over a copy of delta, otherwise we can't change the original
-                // during the enumeration
-                foreach (var (key, value) in _delta.ToImmutableDictionary())
+            mergeStates.Remove(keepState);
+
+            // Merge all incoming edges
+            foreach (string state in _states)
+            {
+                foreach (char symbol in _alphabet)
                 {
-                    // Change relationships to eliminated states to instead point to the kept state 
-                    if (equivalencyGroup.Contains(value))
+                    if (mergeStates.Contains(_delta[(state, symbol)]))
                     {
-                        _delta[key] = keepState;
+                        _delta[(state, symbol)] = keepState;
                     }
                 }
             }
-
-            return keep;
+            
+            // Remove the extra states
+            _states.ExceptWith(mergeStates);
         }
 
         /// <summary>
-        /// Groups the existing states using the Nerode equivalency relation. 
+        /// Return an enumerable of sets of states. Each set contains all states belonging to the same Nerode
+        /// equivalence class.
         /// </summary>
-        /// <returns>
-        /// An array of lists. Each inner list contains the names of equivalent states.
-        /// The automaton can be reduced by keeping only one state from each inner list.
-        /// </returns>
-        private List<string>[] GroupStatesByEquivalency()
+        IEnumerable<ISet<string>> ComputeNerodeEquivalencyGroups()
         {
-            // Copy alphabet and states to ensure the order doesn't change
-            var alphabet = _alphabet.ToImmutableArray();
-            var states = _states.ToImmutableArray();
+            // HashSets aren't guaranteed to keep the same order on every iteration,
+            // we rely on the order of the alphabet here, so we copy it into an array
+            var sortedAlphabet = _alphabet.ToImmutableArray();
+            Dictionary<string, int> oldClasses, newClasses;
 
-            int numberOfDistinctClasses = 2;
-            var classes = new int[states.Length];
-            var patterns = Get2DEquatableArray(states.Length, alphabet.Length + 1);
-
-            // Initial step: Two equivalency classes,
-            // 1 => non-accepting states
-            // 2 => accepting states
-            for (var i = 0; i < states.Length; i++)
+            // Run iterations until there are no new equivalence classes
+            newClasses = NerodeEquivalenceFirstIteration(sortedAlphabet);
+            do
             {
-                var state = states[i];
-                patterns[i][0] = classes[i] = _acceptStates.Contains(state) ? 1 : 0;
-            }
-
-            // Iteration
-            while (true)
-            {
-                // Fill in all patterns
-                FillPatterns(states, patterns, classes, alphabet);
-
-                // Now, give each distinct pattern a unique number 
-                var distinctPatterns = patterns
-                    .Distinct()
-                    .Select((pattern, index) => (pattern, index))
-                    .ToImmutableArray();
-
-                if (distinctPatterns.Length == numberOfDistinctClasses)
-                {
-                    // No new distinct patterns found. Algorithm is complete
-                    break;
-                }
-
-                numberOfDistinctClasses = distinctPatterns.Length;
-
-                // Then fill classes with the corresponding number for each state
-                CopyPatternsToClasses(states, patterns, distinctPatterns, classes);
-            }
-
-            return GetEquivalencyGroups(states, classes);
+                oldClasses = newClasses;
+                newClasses = NerodeEquivalenceIteration(sortedAlphabet, oldClasses);
+            } while (newClasses.Values.Distinct().Count() != oldClasses.Values.Distinct().Count());
+            
+            // Now, if there are multiple states with the same class, merge them into one
+            return from cls in newClasses
+                group cls by cls.Value
+                into gr
+                select gr.Select(x => x.Key).ToHashSet();
         }
 
         /// <summary>
-        /// Returns an array of <paramref name="rowLength"/> <see cref="EquatableArray{int}"/> of length
-        /// <paramref name="colLength"/>.
+        /// Does the first iteration where states are grouped by whether or not they are an accepting state.
         /// </summary>
-        private static EquatableArray<int>[] Get2DEquatableArray(int rowLength, int colLength)
+        /// <param name="sortedAlphabet">
+        /// The alphabet in order. This can be any order, but it has to be the same throughout the minimizing operation.
+        /// </param>
+        Dictionary<string, int> NerodeEquivalenceFirstIteration(ImmutableArray<char> sortedAlphabet)
         {
-            var patterns = new EquatableArray<int>[rowLength];
-            for (int i = 0; i < patterns.Length; i++)
+            var classes = new Dictionary<string, int>();
+            
+            foreach (string state in _states)
             {
-                patterns[i] = new EquatableArray<int>(colLength + 1);
+                classes[state] = _acceptStates.Contains(state) ? 1 : 0;
             }
 
-            return patterns;
+            return classes;
         }
 
-        private static void CopyPatternsToClasses(ImmutableArray<string> states,
-            IReadOnlyList<EquatableArray<int>> patterns,
-            ImmutableArray<(EquatableArray<int> pattern, int index)> distinctPatterns, IList<int> classes)
+        /// <summary>
+        /// Does one iteration where states are grouped by their own class and the classes of their direct successors.
+        /// </summary>
+        /// <param name="sortedAlphabet">
+        /// The alphabet in order. This can be any order, but it has to be the same throughout the minimizing operation.
+        /// </param>
+        /// <param name="classes">
+        /// The classes returned from the last iteration.
+        /// </param>
+        Dictionary<string, int> NerodeEquivalenceIteration(ImmutableArray<char> sortedAlphabet,
+            Dictionary<string, int> classes)
         {
-            for (var i = 0; i < states.Length; i++)
+            var patterns = new List<EquatableArray<int>>(_states.Count);
+            int patternIndex = 0;
+            var newClasses = new Dictionary<string, int>();
+            
+            foreach (string state in _states)
             {
-                var pattern = patterns[i];
-                var patternNumber = distinctPatterns
-                    .First(x => x.pattern.Equals(pattern))
-                    .index;
-                classes[i] = patternNumber;
-            }
-        }
-
-        private void FillPatterns(ImmutableArray<string> states, IReadOnlyList<EquatableArray<int>> patterns,
-            IReadOnlyList<int> classes, ImmutableArray<char> alphabet)
-        {
-            for (var i = 0; i < states.Length; i++)
-            {
-                // The first value is copied from classes
-                var state = states[i];
-                patterns[i][0] = classes[i];
-
-                // The subsequent values are the corresponding values of _delta(state, symbol)
-                // These can be copied from the corresponding position in classes
-                for (var j = 0; j < alphabet.Length; j++)
+                // Create the pattern for this state
+                var pattern = new EquatableArray<int>(_alphabet.Count + 1);
+                
+                // It starts with the class of this state itself...
+                pattern[0] = classes[state];
+                
+                // ...and continues with the classes of all its direct successors
+                for (int i = 0; i < sortedAlphabet.Length; i++)
                 {
-                    var symbol = alphabet[j];
-                    var nextState = _delta[(state, symbol)];
-                    var index = states.IndexOf(nextState);
-                    patterns[i][j + 1] = classes[index];
+                    char symbol = sortedAlphabet[i];
+                    pattern[i + 1] = classes[_delta[(state, symbol)]];
+                }
+                
+                // We add this pattern to the list of patterns
+                // If it is a new pattern, we increment the patternIndex
+                // The new class of this state is the patternIndex
+                if (patterns.Contains(pattern))
+                {
+                    newClasses[state] = patterns.IndexOf(pattern);
+                }
+                else
+                {
+                    newClasses[state] = patternIndex++;
+                    patterns.Add(pattern);
                 }
             }
+
+            return newClasses;
         }
+            
 
         private List<string>[] GetEquivalencyGroups(ImmutableArray<string> states, IReadOnlyList<int> classes)
         {
