@@ -3,7 +3,7 @@ using NetDataStructures.Automata.Internal;
 
 namespace NetDataStructures.Automata
 {
-    public class DeterministicEmptyStackAcceptingPushdownAutomaton : DeterministicPushdownAutomatonBase
+    public class DeterministicEmptyStackAcceptingPushdownAutomaton : DeterministicPushdownAutomatonBase, IAutomaton
     {
         public DeterministicEmptyStackAcceptingPushdownAutomaton(
             IEnumerable<char> alphabet,

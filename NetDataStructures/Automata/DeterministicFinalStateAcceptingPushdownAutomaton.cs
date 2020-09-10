@@ -5,7 +5,7 @@ using NetDataStructures.Automata.Internal;
 
 namespace NetDataStructures.Automata
 {
-    public class DeterministicFinalStateAcceptingPushdownAutomaton : DeterministicPushdownAutomatonBase
+    public class DeterministicFinalStateAcceptingPushdownAutomaton : DeterministicPushdownAutomatonBase, IAutomaton
     {
         /// <summary>
         /// Returns the accepting states.

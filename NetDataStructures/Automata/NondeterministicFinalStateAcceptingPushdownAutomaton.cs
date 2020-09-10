@@ -9,7 +9,7 @@ namespace NetDataStructures.Automata
     /// A pushdown automaton that accepts an input iif it is in an accepting state and the complete input has been
     /// consumed. 
     /// </summary>
-    public class NondeterministicFinalStateAcceptingPushdownAutomaton : NondeterministicPushdownAutomatonBase
+    public class NondeterministicFinalStateAcceptingPushdownAutomaton : NondeterministicPushdownAutomatonBase, IAutomaton
     {
         /// <summary>
         /// Returns the accepting states.
