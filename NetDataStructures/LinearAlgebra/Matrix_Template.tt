@@ -27,6 +27,8 @@ namespace NetDataStructures.LinearAlgebra
         ("UInt32", true, false),
         ("Int64", true, true),
         ("UInt64", true, false),
+        ("nint", true, true),
+        ("nuint", true, false),
     };
 
     foreach ((string name, bool isInt, bool isSigned) in types)
